@@ -4,12 +4,14 @@ import com.study.bookstore.domain.user.dto.req.CreateUserReqDto;
 import com.study.bookstore.domain.user.dto.req.LoginUserReqDto;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.domain.user.service.CreateUserService;
+import com.study.bookstore.domain.user.service.DeleteUserService;
 import com.study.bookstore.domain.user.service.LoginUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +25,7 @@ public class UserController {
 
   private final CreateUserService createUserService;
   private final LoginUserService loginUserService;
+  private final DeleteUserService deleteUserService;
 
   @Operation(summary = "유저생성", description = "입력한 정보로 유저를 생성합니다.(회원가입)")
   @PostMapping
@@ -64,5 +67,17 @@ public class UserController {
     }
     */
     return ResponseEntity.ok().body("로그아웃되었습니다.");
+  }
+
+  @Operation(summary = "유저삭제", description = "로그인되어있는 유저의 정보를 삭제합니다.(회원탈퇴)")
+  @DeleteMapping("/delete")
+  public ResponseEntity<?> deleteUser(HttpSession session) {
+    try {
+      deleteUserService.deleteUser(session);
+      session.removeAttribute("user");
+      return ResponseEntity.ok().body("회원탈퇴한 계정입니다.");
+    } catch (Exception e) {
+      return ResponseEntity.status(401).body(e.getMessage());
+    }
   }
 }
