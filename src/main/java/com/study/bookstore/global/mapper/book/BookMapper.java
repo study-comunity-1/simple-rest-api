@@ -17,4 +17,7 @@ public interface BookMapper {
   List<Book> getBookByAuthor(String author);//작가별 책 조회
   List<Book> getBookByCategory(String category);//카테고리별 책 조회
   List<Book> getBookByTitle(String title);//제목별 책 조회
+  int getTotalBooks();// 총 책 수를 가져오는 메서드
+  List<Book> getBookListPagination(int pageSize, int offset); // 페이지네이션을 적용하여 책 목록을 가져오는 메서드
+
 }
