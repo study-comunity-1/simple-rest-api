@@ -6,12 +6,16 @@
 
 <mapper namespace="com.study.bookstore.global.mapper.user.UserMapper">
 
-  <select id="createUser">
+  <insert id="createUser">
     insert into
     users(name, email, password, nickname, phone_number,
     address, user_type, created_date, updated_date)
     values(#{name}, #{email}, #{password}, #{nickname}, #{phoneNumber},
     #{address}, #{userType}, #{createdDate}, #{updatedDate})
+  </insert>
+
+  <select id="findByEmail" resultType="com.study.bookstore.domain.user.entity.User">
+    select * from users where email = #{email}
   </select>
 
 </mapper>
