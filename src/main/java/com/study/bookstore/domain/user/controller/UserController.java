@@ -51,4 +51,18 @@ public class UserController {
       // 일치하는 계정이 없는 경우 service에서 controller로 예외 전가
     }
   }
+
+  @Operation(summary = "로그아웃", description = "세션에 저장되어있는 유저의 정보를 삭제합니다.")
+  @PostMapping("/logout")
+  public ResponseEntity<?> logoutUser(HttpSession session) {
+    session.removeAttribute("user");
+    /*
+    로그아웃이 성공했는지 확인하기위한 코드 => user == null : 세선에 저장되어있는 정보가 없다는 의미
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+      return ResponseEntity.ok().body("세션에 저장되어있는 user 정보가 없습니다.");
+    }
+    */
+    return ResponseEntity.ok().body("로그아웃되었습니다.");
+  }
 }
