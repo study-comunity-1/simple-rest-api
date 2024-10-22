@@ -6,4 +6,13 @@
 
 <mapper namespace="com.study.bookstore.global.mapper.book.BookMapper">
 
+  <!--DTO에서 받은 데이터를 기반으로 SQL 쿼리를 실행!-->
+  <!--1.책 추가!-->
+  <insert id="insertBook">
+    INSERT INTO books (title, author, publisher, price, stock, published_date, page, category, description, isbn, created_date, updated_date)
+    VALUES (#{title}, #{author}, #{publisher}, #{price}, #{stock}, #{publishedDate}, #{page}, #{category}, #{description}, #{isbn}, NOW(), NOW());
+  </insert>
+  <!--1.책 수정!-->
+  <!--1.책 삭제!-->
+  
 </mapper>
