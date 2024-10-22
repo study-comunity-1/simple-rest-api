@@ -13,6 +13,7 @@ CREATE TABLE books (
     isbn VARCHAR(30) NOT NULL UNIQUE               -- 책 코드 (ISBN)
 );
 
+
 -- 유저 도메인 테이블 생성
 CREATE TABLE users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,          -- 유저 ID (Primary Key)
@@ -25,6 +26,7 @@ CREATE TABLE users (
     address TEXT NOT NULL,                         -- 주소
     user_type ENUM('USER', 'ADMIN') NOT NULL       -- 회원 유형 (일반 유저, 관리자)
 );
+
 
 -- 결제 도메인 테이블 생성
 CREATE TABLE payments (
