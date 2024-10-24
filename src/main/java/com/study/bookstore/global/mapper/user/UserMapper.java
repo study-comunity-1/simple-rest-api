@@ -15,4 +15,7 @@ public interface UserMapper {
 
   // 회원탈퇴(유저 삭제) - 반환형 void
   void deleteUser(@Param("id") Long id);
+
+  // 회원수정 - 반환형 void
+  void updateUser(User user);
 }

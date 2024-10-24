@@ -22,4 +22,10 @@
     delete from users where id = #{id}
   </delete>
 
+  <update id="updateUser">
+    update users
+    set password = #{password}, nickname = #{nickname}, address = #{address}
+    where id = #{id}
+  </update>
+
 </mapper>
