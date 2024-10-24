@@ -2,10 +2,12 @@ package com.study.bookstore.domain.user.controller;
 
 import com.study.bookstore.domain.user.dto.req.CreateUserReqDto;
 import com.study.bookstore.domain.user.dto.req.LoginUserReqDto;
+import com.study.bookstore.domain.user.dto.req.UpdateUserReqDto;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.domain.user.service.CreateUserService;
 import com.study.bookstore.domain.user.service.DeleteUserService;
 import com.study.bookstore.domain.user.service.LoginUserService;
+import com.study.bookstore.domain.user.service.UpdateUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +29,7 @@ public class UserController {
   private final CreateUserService createUserService;
   private final LoginUserService loginUserService;
   private final DeleteUserService deleteUserService;
+  private final UpdateUserService updateUserService;
 
   @Operation(summary = "유저생성", description = "입력한 정보로 유저를 생성합니다.(회원가입)")
   @PostMapping
@@ -76,6 +80,18 @@ public class UserController {
       deleteUserService.deleteUser(session);
       session.removeAttribute("user");
       return ResponseEntity.ok().body("회원탈퇴한 계정입니다.");
+    } catch (Exception e) {
+      return ResponseEntity.status(401).body(e.getMessage());
+    }
+  }
+
+  @Operation(summary = "유저정보수정", description = "유저의 회원정보를 수정합니다.")
+  @PutMapping("/update")
+  public ResponseEntity<?> updateUser(@RequestBody UpdateUserReqDto req, HttpSession session) {
+    try {
+      updateUserService.updateUser(req, session);
+      session.removeAttribute("user");
+      return ResponseEntity.ok().body("회원 정보 수정이 완료되었습니다.");
     } catch (Exception e) {
       return ResponseEntity.status(401).body(e.getMessage());
     }
