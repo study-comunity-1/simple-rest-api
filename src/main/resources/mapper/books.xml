@@ -13,7 +13,7 @@
     VALUES (#{title}, #{author}, #{publisher}, #{price}, #{stock}, #{publishedDate}, #{page}, #{category}, #{description}, #{isbn}, NOW(), NOW())
   </insert>
   <!--2.책 수정!-->
-  <update id="updateBook" parameterType="Book">
+  <update id="updateBook" parameterType="com.study.bookstore.domain.book.entity.Book">
     UPDATE books
     SET
     title = #{title},
@@ -26,7 +26,7 @@
     category = #{category},
     description = #{description},
     isbn = #{isbn},
-    updated_date = NOW() -- 현재 시간으로 수정일시 업데이트
+    updated_date = #{updatedDate}
     WHERE id = #{id}
   </update>
 
@@ -46,7 +46,7 @@
 
   <!-- 총 책 수를 세는 쿼리 -->
   <select id="getTotalBooks" resultType="Integer">
-    SELECT COUNT(*) FROM books;
+    SELECT COUNT(*) FROM books
   </select>
 
   <!--책 코드로 한 권의 수량을 세는 쿼리 -->

@@ -1,9 +1,11 @@
 package com.study.bookstore.domain.book.controller;
 
 import com.study.bookstore.domain.book.dto.req.CreateBookReqDto;
+import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
 import com.study.bookstore.domain.book.dto.resp.GetBookRespDto;
 import com.study.bookstore.domain.book.service.CreateBookService;
 import com.study.bookstore.domain.book.service.GetBookListService;
+import com.study.bookstore.domain.book.service.UpdateBookService;
 import com.study.bookstore.domain.book.service.deleteBookService;
 import com.study.bookstore.domain.user.entity.UserType;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,6 +36,7 @@ public class BookController {
   private final CreateBookService createBookService;
   private final GetBookListService getBookListService;
   private final deleteBookService deleteBookService;
+  private final UpdateBookService updateBookService;
 
 
   @Operation(summary = "책 추가", description = "책 추가 시 관리자만 가능")
@@ -71,30 +75,44 @@ public class BookController {
   }
 
 
-  @Operation(summary = "책 삭제", description = "책을 삭제합니다.")
+  @Operation(summary = "책 삭제", description = "책 삭제 관리자만 가능")
   @DeleteMapping("/delete/{id}")
   public ResponseEntity<?> deleteBook(@PathVariable Long id, HttpSession session) {
 
     User user = (User) session.getAttribute("user");
-
-    //유저가 널 값이면
     if (user == null) {
-
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
     }
 
-    // 유저 타입 확인
     UserType userType = user.getUserType();
 
-      // 유저타입이 널값이거나 글쓴 유저와 로그인한 유저가 다르다면
-      if (userType == null || userType.equals(UserType.USER)) { // UserType은 enum으로 가정
+    if (userType == null || userType.equals(UserType.USER)) { // UserType은 enum으로 가정
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제 권한이 없습니다.");
       } else {
         deleteBookService.deletebook(id);
         return ResponseEntity.ok().body("책 삭제가 완료되었습니다.");
       }
     }
+
+    @Operation(summary = "책 수정",description ="책 수정 관리자만 가능")
+    @PutMapping("/update/{id}")
+    public ResponseEntity<?> updateBook(@PathVariable Long id, HttpSession session, @RequestBody UpdateBookReqDto req){
+    User user = (User) session.getAttribute("user");
+    if(user == null){
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요.");
+
+    }
+      UserType userType = user.getUserType();
+
+      if (userType == null || userType.equals(UserType.USER)) { // UserType은 enum으로 가정
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("수정 권한이 없습니다.");
+      } else {
+        updateBookService.updateBook(req, id);
+        return ResponseEntity.ok().body("책 수정이 완료되었습니다.");
+      }
+    }
   }
+
 
 
 
