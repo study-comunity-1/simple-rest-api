@@ -1,6 +1,7 @@
 package com.study.bookstore.domain.book.entity;
 
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class Book {
   private String publisher; // 출판사
   private int price; // 가격
   private int stock; // 재고
-  private LocalDateTime publishedDate; // 출판 일시
+  private LocalDate publishedDate; // 출판 일시
   private int page; // 페이지 수
   private String category; // 카테고리
   private String description; // 책 소개
