@@ -30,8 +30,6 @@
     WHERE id = #{id}
   </update>
 
-
-
   <!--3.책 삭제!-->
   <delete id="deleteBook">
     DELETE FROM books WHERE id = #{id}
@@ -40,7 +38,7 @@
 
 
   <!--4.모든 책 목록 조회!-->
-  <select id="getBookList">
+  <select id="getBookList" resultType="com.study.bookstore.domain.book.entity.Book">
     SELECT title, author, publisher, price, stock, category, description FROM books
   </select>
 
@@ -60,6 +58,10 @@
     ORDER BY id DESC
     LIMIT #{pageSize}
     OFFSET #{offset}
+  </select>
+
+  <select id="getBookList" resultType="com.study.bookstore.domain.book.entity.Book">
+    select * from books
   </select>
   
 </mapper>

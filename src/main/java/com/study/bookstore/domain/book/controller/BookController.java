@@ -110,6 +110,9 @@ public class BookController {
         updateBookService.updateBook(req, id);
         return ResponseEntity.ok().body("책 수정이 완료되었습니다.");
       }
+
+
+
     }
   }
 
