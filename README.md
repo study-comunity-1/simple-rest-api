@@ -4,6 +4,9 @@
 
 ## 📝 설명 (Description)
 
+![image](https://github.com/user-attachments/assets/3e38559d-3c89-4467-a827-361d2634db39)
+
+
 
 ## 도메인별 기능 및 필드
 
