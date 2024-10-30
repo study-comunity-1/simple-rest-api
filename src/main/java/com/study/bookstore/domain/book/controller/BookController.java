@@ -119,7 +119,7 @@ public ResponseEntity<GetBookRespDto> getBookDetail(@PathVariable Long bookId){
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body("수정 권한이 없습니다.");
       } else {
         updateBookService.updateBook(req, bookId);
-        return ResponseEntity.ok().body("책 수정이 완료되었습니다.");
+        return ResponseEntity.ok().body("책 수정이 완료 되었습니다.");
       }
 
     }
