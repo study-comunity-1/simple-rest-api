@@ -2,7 +2,7 @@ package com.study.bookstore.domain.user.service;
 
 import com.study.bookstore.domain.user.dto.req.CreateUserReqDto;
 import com.study.bookstore.domain.user.entity.User;
-import com.study.bookstore.global.mapper.user.UserMapper;
+import com.study.bookstore.domain.user.entity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class CreateUserService {
 
-  private final UserMapper userMapper;
+  private final UserRepository userRepository;
   private final BCryptPasswordEncoder passwordEncoder;
 
   public void createUser(CreateUserReqDto req) {
@@ -24,9 +24,9 @@ public class CreateUserService {
     // passwordEncoder.encode(req.password()) : 가져온 평문 비밀번호를 암호화
     // req.of(passwordEncoder.encode(req.password())) : 암호화한 비밀번호를 of()메서드의 매개변수로 전달
 
-    log.info("user id: {}", user.getName());
+    log.info("user_id: {}", user.getUserId());
     // 로깅
 
-    userMapper.createUser(user);
+    userRepository.save(user);
   }
 }

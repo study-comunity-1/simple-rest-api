@@ -2,7 +2,7 @@ package com.study.bookstore.domain.user.service;
 
 import com.study.bookstore.domain.user.dto.req.LoginUserReqDto;
 import com.study.bookstore.domain.user.entity.User;
-import com.study.bookstore.global.mapper.user.UserMapper;
+import com.study.bookstore.domain.user.entity.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -14,11 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class LoginUserService {
 
-  private final UserMapper userMapper;
+  private final UserRepository userRepository;
   private final BCryptPasswordEncoder passwordEncoder;
 
   public void loginUser(LoginUserReqDto req, HttpSession session) {
-    User byEmail = userMapper.findByEmail(req.email());
+    User byEmail = userRepository.findByEmail(req.email());
     // req.email() : 사용자가 로그인시 입력한 email 정보를 가져옴
     // userMapper.findByEmail(req.email()) : 해당 email과 일치하는 User를 가져옴
     // 만약 일치하는 정보가 없다면 byEmail == null

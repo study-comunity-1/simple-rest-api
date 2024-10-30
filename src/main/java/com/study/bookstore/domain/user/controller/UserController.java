@@ -2,15 +2,20 @@ package com.study.bookstore.domain.user.controller;
 
 import com.study.bookstore.domain.user.dto.req.CreateUserReqDto;
 import com.study.bookstore.domain.user.dto.req.LoginUserReqDto;
+import com.study.bookstore.domain.user.dto.req.UpdateUserReqDto;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.domain.user.service.CreateUserService;
+import com.study.bookstore.domain.user.service.DeleteUserService;
 import com.study.bookstore.domain.user.service.LoginUserService;
+import com.study.bookstore.domain.user.service.UpdateUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,10 +28,12 @@ public class UserController {
 
   private final CreateUserService createUserService;
   private final LoginUserService loginUserService;
+  private final DeleteUserService deleteUserService;
+  private final UpdateUserService updateUserService;
 
   @Operation(summary = "유저생성", description = "입력한 정보로 유저를 생성합니다.(회원가입)")
   @PostMapping
-  public ResponseEntity<?> createUser(@RequestBody CreateUserReqDto req) {
+  public ResponseEntity<String> createUser(@RequestBody CreateUserReqDto req) {
     try {
       createUserService.createUser(req);
       return ResponseEntity.ok().body("회원가입이 완료되었습니다.");
@@ -37,7 +44,7 @@ public class UserController {
 
   @Operation(summary = "로그인", description = "사용자가 입력한 email, password로 로그인")
   @PostMapping("/login")
-  public ResponseEntity<?> loginUser(@RequestBody LoginUserReqDto req, HttpSession session) {
+  public ResponseEntity<String> loginUser(@RequestBody LoginUserReqDto req, HttpSession session) {
     try {
       loginUserService.loginUser(req, session);
       /*
@@ -54,7 +61,7 @@ public class UserController {
 
   @Operation(summary = "로그아웃", description = "세션에 저장되어있는 유저의 정보를 삭제합니다.")
   @PostMapping("/logout")
-  public ResponseEntity<?> logoutUser(HttpSession session) {
+  public ResponseEntity<String> logoutUser(HttpSession session) {
     session.removeAttribute("user");
     /*
     로그아웃이 성공했는지 확인하기위한 코드 => user == null : 세선에 저장되어있는 정보가 없다는 의미
@@ -64,5 +71,29 @@ public class UserController {
     }
     */
     return ResponseEntity.ok().body("로그아웃되었습니다.");
+  }
+
+  @Operation(summary = "유저삭제", description = "로그인되어있는 유저의 정보를 삭제합니다.(회원탈퇴)")
+  @DeleteMapping("/delete")
+  public ResponseEntity<String> deleteUser(HttpSession session) {
+    try {
+      deleteUserService.deleteUser(session);
+      session.removeAttribute("user");
+      return ResponseEntity.ok().body("회원탈퇴한 계정입니다.");
+    } catch (Exception e) {
+      return ResponseEntity.status(401).body(e.getMessage());
+    }
+  }
+
+  @Operation(summary = "유저정보수정", description = "유저의 회원정보를 수정합니다.")
+  @PutMapping("/update")
+  public ResponseEntity<String> updateUser(@RequestBody UpdateUserReqDto req, HttpSession session) {
+    try {
+      updateUserService.updateUser(req, session);
+      session.removeAttribute("user");
+      return ResponseEntity.ok().body("회원 정보 수정이 완료되었습니다.");
+    } catch (Exception e) {
+      return ResponseEntity.status(401).body(e.getMessage());
+    }
   }
 }
