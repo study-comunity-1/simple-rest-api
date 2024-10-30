@@ -8,11 +8,15 @@ public record CreateUserReqDto(
     String name,
     String email,
     String password,
-    String nickname,
-    String phoneNumber,
+    String nick,
+    String phone,
     String address,
     UserType userType
 ) {
+  private CreateUserReqDto
+      (String name, String email, String password, String nick, String phone, String address) {
+    this(name, email, password, nick, phone, address, UserType.USER);
+  }
 
   public User of(String password) {
     // Dto -> Entity로 바꿈
@@ -21,12 +25,10 @@ public record CreateUserReqDto(
         .email(this.email)
         .password(password)
         // 전달받은 암호화된 비밀번호를 password 필드에 넣음
-        .nickname(this.nickname)
-        .phoneNumber(this.phoneNumber)
+        .nick(this.nick)
+        .phone(this.phone)
         .address(this.address)
-        .userType(this.userType)
-        .createdDate(LocalDateTime.now())
-        .updatedDate(LocalDateTime.now())
+        .userType(this.userType != null ? this.userType : UserType.USER)
         .build();
   }
 }
