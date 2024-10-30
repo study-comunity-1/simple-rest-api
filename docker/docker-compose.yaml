@@ -7,13 +7,13 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 1q2w3e4r
       MYSQL_DATABASE: bookStore
-      MYSQL_USER: admin
+      MYSQL_USER: root
       MYSQL_PASSWORD: 1q2w3e4r
     volumes:
       - mysql_data:/var/lib/mysql  # MySQL 데이터 저장 볼륨
       - ./my.cnf:/etc/mysql/conf.d/my.cnf  # MySQL UTF-8 설정 파일
     ports:
-      - "3306:3306"
+      - "3307:3306"
     networks:
       - my_network
 

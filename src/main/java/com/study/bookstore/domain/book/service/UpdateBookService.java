@@ -4,7 +4,10 @@ package com.study.bookstore.domain.book.service;
 import com.study.bookstore.domain.book.dto.req.CreateBookReqDto;
 import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
 import com.study.bookstore.domain.book.entity.Book;
+import com.study.bookstore.domain.book.entity.repository.BookRepository;
+import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.global.mapper.book.BookMapper;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,12 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UpdateBookService {
 
-  private final BookMapper bookMapper;
+  private final BookRepository bookRepository;
 
-  public void updateBook(UpdateBookReqDto req, Long id){
-    Book bookToUpdate = req.of();
-    bookToUpdate.setId(id);//id 세팅
-    bookToUpdate.setUpdatedDate(LocalDateTime.now()); // 업데이트 시간 설정
-    bookMapper.updateBook(bookToUpdate);
+  public void updateBook(UpdateBookReqDto req, Long bookId){
+    Book existingBook = bookRepository.findById(bookId)
+            .orElseThrow(() -> new EntityNotFoundException("책을 찾을 수 없습니다.:ID" + bookId));
+
+    existingBook.updateFrom(req);
+    bookRepository.save(existingBook);
+
+
+
+
   }
 }
