@@ -32,23 +32,23 @@ public class Book extends BaseTimeEntity {
   @Column(name ="book_id")
   private Long bookId; // 책 고유 인덱스
 
-  @Column(name="title")
+  @Column(name="title", nullable = false)
   @Comment("책 제목")
   private String title;
 
-  @Column(name="author")
+  @Column(name="author", nullable = false)
   @Comment("저자")
   private String author;
 
-  @Column(name="publisher")
+  @Column(name="publisher", nullable = false)
   @Comment("출판사")
   private String publisher;
 
-  @Column(name="price")
+  @Column(name="price", nullable = false)
   @Comment("가격")
   private int price;
 
-  @Column(name="stock")
+  @Column(name="stock", nullable = false)
   @Comment("재고")
   private int stock;
 
@@ -60,17 +60,21 @@ public class Book extends BaseTimeEntity {
   @Comment("페이지 수")
   private int page;
 
-  @Column(name="category")
+  @Column(name="category_id", nullable = false)
   @Comment("카테고리")
-  private String category;
+  private String categoryId;
 
-  @Column(name="description")
+  @Column(name="description", nullable = true)
   @Comment("책 소개")
   private String description;
 
-  @Column(name="isbn")
+  @Column(name="isbn", nullable = false)
   @Comment("책 코드")
   private String isbn;
+
+  public void setStock(int stock) {
+    this.stock = stock; // stock 값을 설정하는 메서드
+  }
 
  /* @Column(name="created_Date")
   @Comment("책 레코드 생성일시(책 정보가 처음 데이터베이스에 저장될 때 설정되고, 이후에는 변경되지 않음)")
@@ -89,7 +93,7 @@ public class Book extends BaseTimeEntity {
    this.stock = req.stock();
    this.publishedDate = req.publishedDate();
    this.page = req.page();
-   this.category = req.category();
+   this.categoryId = req.categoryId();
    this.description = req.description();
    this.isbn = req.isbn();
    // updatedDate, createdDate는 JPA에서 자동으로 관리

@@ -8,7 +8,7 @@ public record GetBookRespDto(
     String publisher,   // 출판사
     int price,          // 가격
     int stock,          // 재고
-    String category,     // 카테고리
+    String categoryId,     // 카테고리
     String description  // 책 소개
 
 ) {
@@ -20,7 +20,7 @@ public record GetBookRespDto(
         book.getPublisher(),
         book.getPrice(),
         book.getStock(),
-        book.getCategory(),
+        book.getCategoryId(),
         book.getDescription()
     );
   }

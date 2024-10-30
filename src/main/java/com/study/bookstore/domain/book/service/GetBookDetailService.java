@@ -4,16 +4,14 @@ import com.study.bookstore.domain.book.dto.resp.GetBookRespDto;
 import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.book.entity.repository.BookRepository;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Service
 @RequiredArgsConstructor
-public class getBookDetailService {
+public class GetBookDetailService {
   private final BookRepository bookRepository;
 
   public GetBookRespDto getBookDetail(Long bookId){
