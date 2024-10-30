@@ -33,7 +33,7 @@ public class UserController {
 
   @Operation(summary = "유저생성", description = "입력한 정보로 유저를 생성합니다.(회원가입)")
   @PostMapping
-  public ResponseEntity<?> createUser(@RequestBody CreateUserReqDto req) {
+  public ResponseEntity<String> createUser(@RequestBody CreateUserReqDto req) {
     try {
       createUserService.createUser(req);
       return ResponseEntity.ok().body("회원가입이 완료되었습니다.");
@@ -44,7 +44,7 @@ public class UserController {
 
   @Operation(summary = "로그인", description = "사용자가 입력한 email, password로 로그인")
   @PostMapping("/login")
-  public ResponseEntity<?> loginUser(@RequestBody LoginUserReqDto req, HttpSession session) {
+  public ResponseEntity<String> loginUser(@RequestBody LoginUserReqDto req, HttpSession session) {
     try {
       loginUserService.loginUser(req, session);
       /*
@@ -61,7 +61,7 @@ public class UserController {
 
   @Operation(summary = "로그아웃", description = "세션에 저장되어있는 유저의 정보를 삭제합니다.")
   @PostMapping("/logout")
-  public ResponseEntity<?> logoutUser(HttpSession session) {
+  public ResponseEntity<String> logoutUser(HttpSession session) {
     session.removeAttribute("user");
     /*
     로그아웃이 성공했는지 확인하기위한 코드 => user == null : 세선에 저장되어있는 정보가 없다는 의미
@@ -75,7 +75,7 @@ public class UserController {
 
   @Operation(summary = "유저삭제", description = "로그인되어있는 유저의 정보를 삭제합니다.(회원탈퇴)")
   @DeleteMapping("/delete")
-  public ResponseEntity<?> deleteUser(HttpSession session) {
+  public ResponseEntity<String> deleteUser(HttpSession session) {
     try {
       deleteUserService.deleteUser(session);
       session.removeAttribute("user");
@@ -87,7 +87,7 @@ public class UserController {
 
   @Operation(summary = "유저정보수정", description = "유저의 회원정보를 수정합니다.")
   @PutMapping("/update")
-  public ResponseEntity<?> updateUser(@RequestBody UpdateUserReqDto req, HttpSession session) {
+  public ResponseEntity<String> updateUser(@RequestBody UpdateUserReqDto req, HttpSession session) {
     try {
       updateUserService.updateUser(req, session);
       session.removeAttribute("user");

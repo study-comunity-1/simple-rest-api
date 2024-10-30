@@ -2,11 +2,9 @@ package com.study.bookstore.domain.book.service;
 
 import com.study.bookstore.domain.book.entity.repository.BookRepository;
 import com.study.bookstore.global.mapper.book.BookMapper;
-import com.study.bookstore.global.mapper.user.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
 
 @Transactional
 @Service
