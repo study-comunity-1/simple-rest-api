@@ -6,6 +6,7 @@ import com.study.bookstore.domain.book.dto.resp.GetBookRespDto;
 import com.study.bookstore.domain.book.service.CreateBookService;
 import com.study.bookstore.domain.book.service.GetBookListService;
 import com.study.bookstore.domain.book.service.InventoryService;
+import com.study.bookstore.domain.book.service.SearchBookService;
 import com.study.bookstore.domain.book.service.UpdateBookService;
 import com.study.bookstore.domain.book.service.DeleteBookService;
 import com.study.bookstore.domain.book.service.GetBookDetailService;
@@ -41,6 +42,7 @@ public class BookController {
   private final UpdateBookService updateBookService;
   private final GetBookDetailService GetBookDetailService;
   private final InventoryService inventoryService;
+  private final SearchBookService searchBookService;
 
 
   @Operation(summary = "책 추가", description = "책 추가 시 관리자만 가능")
@@ -156,7 +158,7 @@ public ResponseEntity<GetBookRespDto> getBookDetail(@PathVariable Long bookId){
     return ResponseEntity.ok("재고가 추가되었습니다.");
   }
   @Operation(summary = "책 재고 삭제")
-  @PostMapping("/inventory/remove/{bookId}")
+  @DeleteMapping("/inventory/remove/{bookId}")
   public ResponseEntity<String>removeBookInventory(@PathVariable Long bookId, HttpSession session, @RequestParam int removeBookAmount){
     User user = (User)session.getAttribute("user");
     if(user == null){
@@ -169,6 +171,20 @@ public ResponseEntity<GetBookRespDto> getBookDetail(@PathVariable Long bookId){
     }
     int stock = inventoryService.removeInventory(bookId, removeBookAmount);
     return ResponseEntity.ok("재고가 삭제 되었습니다.");
+  }
+
+  @Operation(summary = "책 카테고리검색 및 정렬 기능")
+  @GetMapping
+  public ResponseEntity<List<GetBookRespDto>>searchBooks(
+      @RequestParam(required = false) Long categoryId,
+      @RequestParam(required = false) String sort,
+      @RequestParam(required = false) String title,
+      @RequestParam(required = false) String author
+  ) {
+    List<GetBookRespDto> books = searchBookService.searchBooksBySort(categoryId, sort, title,
+        author);
+
+    return ResponseEntity.ok(books);
   }
   }
 

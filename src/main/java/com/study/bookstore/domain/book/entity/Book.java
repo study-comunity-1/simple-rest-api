@@ -2,12 +2,15 @@ package com.study.bookstore.domain.book.entity;
 
 
 import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
+import com.study.bookstore.domain.category.entity.Category;
 import com.study.bookstore.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -60,10 +63,6 @@ public class Book extends BaseTimeEntity {
   @Comment("페이지 수")
   private int page;
 
-  @Column(name="category_id", nullable = false)
-  @Comment("카테고리")
-  private String categoryId;
-
   @Column(name="description", nullable = true)
   @Comment("책 소개")
   private String description;
@@ -71,6 +70,12 @@ public class Book extends BaseTimeEntity {
   @Column(name="isbn", nullable = false)
   @Comment("책 코드")
   private String isbn;
+
+
+  @ManyToOne
+  @JoinColumn(name = "category_id", insertable = false, updatable = false) // FK 설정
+  private Category category; // 카테고리와의 관계를 정의
+
 
   public void setStock(int stock) {
     this.stock = stock; // stock 값을 설정하는 메서드
@@ -93,7 +98,6 @@ public class Book extends BaseTimeEntity {
    this.stock = req.stock();
    this.publishedDate = req.publishedDate();
    this.page = req.page();
-   this.categoryId = req.categoryId();
    this.description = req.description();
    this.isbn = req.isbn();
    // updatedDate, createdDate는 JPA에서 자동으로 관리
