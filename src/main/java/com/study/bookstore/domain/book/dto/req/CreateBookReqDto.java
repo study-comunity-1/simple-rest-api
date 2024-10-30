@@ -13,7 +13,7 @@ public record CreateBookReqDto(
     int stock, // 재고
     LocalDate publishedDate, // 출판 일시
     int page, // 페이지 수
-    String category, // 카테고리
+    String categoryId, // 카테고리
     String description, // 책 소개
     String isbn // 책 코드
 ) {
@@ -26,7 +26,7 @@ public record CreateBookReqDto(
         .stock(this.stock)
         .publishedDate(this.publishedDate)
         .page(this.page)
-        .category(this.category)
+        .categoryId(this.categoryId)
         .description(this.description)
         .isbn(this.isbn)
         .build();
