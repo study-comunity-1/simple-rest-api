@@ -12,7 +12,7 @@ public class DeleteBookService {
 
   private final BookRepository bookRepository;
 
-  //책 아이디 받아서 책 삭제
+  //책 아이디를 받아서 책 삭제
   public void deleteBook(Long bookId) {
     bookRepository.deleteById(bookId);
   }
