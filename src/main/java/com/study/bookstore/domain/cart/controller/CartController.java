@@ -1,6 +1,8 @@
 package com.study.bookstore.domain.cart.controller;
 
+import com.study.bookstore.domain.book.dto.resp.GetBookRespDto;
 import com.study.bookstore.domain.book.entity.Book;
+import com.study.bookstore.domain.cart.dto.resp.GetCartListRespDto;
 import com.study.bookstore.domain.cart.service.AddToCartService;
 import com.study.bookstore.domain.cart.service.GetCartListService;
 import com.study.bookstore.domain.user.entity.User;
@@ -40,7 +42,7 @@ public class CartController {
   }
 
   @GetMapping("/getCartList")
-  public ResponseEntity<List<Book>> getCartList(HttpSession session) {
+  public ResponseEntity<List<GetCartListRespDto>> getCartList(HttpSession session) {
     User user = (User) session.getAttribute("user");
 
     if (user == null) {
