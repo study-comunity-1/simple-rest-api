@@ -70,6 +70,10 @@ public class UserController {
       return ResponseEntity.ok().body("세션에 저장되어있는 user 정보가 없습니다.");
     }
     */
+
+    session.removeAttribute("cart");
+    // 로그아웃시 세션에서 장바구니 정보도 삭제
+
     return ResponseEntity.ok().body("로그아웃되었습니다.");
   }
 
@@ -79,6 +83,7 @@ public class UserController {
     try {
       deleteUserService.deleteUser(session);
       session.removeAttribute("user");
+      session.removeAttribute("cart");
       return ResponseEntity.ok().body("회원탈퇴한 계정입니다.");
     } catch (Exception e) {
       return ResponseEntity.status(401).body(e.getMessage());
@@ -91,6 +96,7 @@ public class UserController {
     try {
       updateUserService.updateUser(req, session);
       session.removeAttribute("user");
+      session.removeAttribute("cart");
       return ResponseEntity.ok().body("회원 정보 수정이 완료되었습니다.");
     } catch (Exception e) {
       return ResponseEntity.status(401).body(e.getMessage());
