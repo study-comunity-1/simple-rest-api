@@ -28,12 +28,6 @@ public class CartController {
   @PostMapping
   public ResponseEntity<String> createCart(@RequestParam Long bookId, HttpSession session) {
     try {
-      User user = (User) session.getAttribute("user");
-
-      if (user == null) {
-        return ResponseEntity.badRequest().body("로그인 해주세요.");
-      }
-
       addToCartService.addToCart(bookId, session);
       return ResponseEntity.ok().body("장바구니에 추가되었습니다.");
     } catch (Exception e) {
@@ -43,13 +37,7 @@ public class CartController {
 
   @GetMapping("/getCartList")
   public ResponseEntity<List<GetCartListRespDto>> getCartList(HttpSession session) {
-    User user = (User) session.getAttribute("user");
-
-    if (user == null) {
-      return ResponseEntity.badRequest().body(new ArrayList<>());
-    }
 
     return ResponseEntity.ok().body(getCartListService.getCartList(session));
-
   }
 }
