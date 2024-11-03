@@ -1,6 +1,7 @@
 package com.study.bookstore.domain.book.dto.req;
 
 import com.study.bookstore.domain.book.entity.Book;
+import com.study.bookstore.domain.category.entity.Category;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -13,11 +14,13 @@ public record CreateBookReqDto(
     int stock, // 재고
     LocalDate publishedDate, // 출판 일시
     int page, // 페이지 수
-    String categoryId, // 카테고리
     String description, // 책 소개
-    String isbn // 책 코드
+    String isbn, // 책 코드
+    Long categoryId //카테고리 ID
 ) {
-  public Book of(){
+
+  //book객체를 만드는 메서드
+  public Book of(Category category) {
     return Book.builder()
         .title(this.title)
         .author(this.author)
@@ -26,9 +29,9 @@ public record CreateBookReqDto(
         .stock(this.stock)
         .publishedDate(this.publishedDate)
         .page(this.page)
-        .categoryId(this.categoryId)
         .description(this.description)
         .isbn(this.isbn)
+        .category(category)
         .build();
   }
 

@@ -2,12 +2,15 @@ package com.study.bookstore.domain.book.entity;
 
 
 import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
+import com.study.bookstore.domain.category.entity.Category;
 import com.study.bookstore.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,75 +32,68 @@ public class Book extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name ="book_id")
+  @Column(name = "book_id")
   private Long bookId; // 책 고유 인덱스
 
-  @Column(name="title", nullable = false)
+  @Column(name = "title", nullable = false)
   @Comment("책 제목")
   private String title;
 
-  @Column(name="author", nullable = false)
+  @Column(name = "author", nullable = false)
   @Comment("저자")
   private String author;
 
-  @Column(name="publisher", nullable = false)
+  @Column(name = "publisher", nullable = false)
   @Comment("출판사")
   private String publisher;
 
-  @Column(name="price", nullable = false)
+  @Column(name = "price", nullable = false)
   @Comment("가격")
   private int price;
 
-  @Column(name="stock", nullable = false)
+  @Column(name = "stock", nullable = false)
   @Comment("재고")
   private int stock;
 
-  @Column(name="published_Date")
+  @Column(name = "published_Date")
   @Comment("출판 일시")
   private LocalDate publishedDate;
 
-  @Column(name="page")
+  @Column(name = "page")
   @Comment("페이지 수")
   private int page;
 
-  @Column(name="category_id", nullable = false)
-  @Comment("카테고리")
-  private String categoryId;
-
-  @Column(name="description", nullable = true)
+  @Column(name = "description", nullable = true)
   @Comment("책 소개")
   private String description;
 
-  @Column(name="isbn", nullable = false)
+  @Column(name = "isbn", nullable = false)
   @Comment("책 코드")
   private String isbn;
+
+
+  @ManyToOne //category_id라는 칼럼이 추가되어, Category와 연결될 수 있게 한다.
+  @JoinColumn(name = "category_id", insertable = false, updatable = false) // FK 설정
+  private Category category; // 카테고리와 객체 자체와 연결되며, 이를 통해 Book 클래스에서 카테고리의 이름이나 설명 같은 속성에 바로 접근할 수 있게 함.
+
 
   public void setStock(int stock) {
     this.stock = stock; // stock 값을 설정하는 메서드
   }
 
- /* @Column(name="created_Date")
-  @Comment("책 레코드 생성일시(책 정보가 처음 데이터베이스에 저장될 때 설정되고, 이후에는 변경되지 않음)")
-  private LocalDateTime createdDate;
 
-  @Column(name="updated_Date")
-  @Comment("수정일시(책 필드가 수정될 때마다 업데이트 됨)")
-  private LocalDateTime updatedDate;*/
-
-
- public void updateFrom(UpdateBookReqDto req) {
-   this.title = req.title();
-   this.author = req.author();
-   this.publisher = req.publisher();
-   this.price = req.price();
-   this.stock = req.stock();
-   this.publishedDate = req.publishedDate();
-   this.page = req.page();
-   this.categoryId = req.categoryId();
-   this.description = req.description();
-   this.isbn = req.isbn();
-   // updatedDate, createdDate는 JPA에서 자동으로 관리
- }
+  public void updateFrom(UpdateBookReqDto req) {
+    this.title = req.title();
+    this.author = req.author();
+    this.publisher = req.publisher();
+    this.price = req.price();
+    this.stock = req.stock();
+    this.publishedDate = req.publishedDate();
+    this.page = req.page();
+    this.description = req.description();
+    this.isbn = req.isbn();
+    // updatedDate, createdDate는 JPA에서 자동으로 관리
+  }
 
 
 }
