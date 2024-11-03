@@ -16,19 +16,18 @@ public class InventoryService {
   private final BookRepository bookRepository;
 
   //재고 확인
-  public int getInventory(Long bookId){
-    Book book =  bookRepository.findById(bookId)
+  public int getInventory(Long bookId) {
+    Book book = bookRepository.findById(bookId)
         .orElseThrow(() -> new RuntimeException("책을 찾을 수 없습니다.")); // 책이 없으면 예외 발생
     return book.getStock();
   }
 
   //재고 추가
-  public int addInventory(Long bookId, int addBookAmount){
+  public int addInventory(Long bookId, int addBookAmount) {
     Book book = bookRepository.findById(bookId)
         .orElseThrow(() -> new RuntimeException("책을 찾을 수 없습니다.")); // 책이 없으면 예외 발생
 
-
-    if(addBookAmount < 0){
+    if (addBookAmount < 0) {
       throw new RuntimeException("책 수량을 정확하게 입력해 주세요.");
     }
 
@@ -40,15 +39,15 @@ public class InventoryService {
   }
 
   //재고 삭제
-  public int removeInventory(Long bookId, int removeBookAmount){
+  public int removeInventory(Long bookId, int removeBookAmount) {
     Book book = bookRepository.findById(bookId)
         .orElseThrow(() -> new RuntimeException("책을 찾을 수 없습니다."));//책이 없으면 예외 발생
 
     //기존 재고 확인
     int stock = book.getStock();
-    if(stock <removeBookAmount){ //재고 부족인 경우
+    if (stock < removeBookAmount) { //재고 부족인 경우
       throw new RuntimeException("책의 재고가 부족합니다.");
-  }else {
+    } else {
       stock -= removeBookAmount;
     }
     book.setStock(stock);

@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class GetBookListService {
+
   private final BookRepository bookRepository;
 
   public List<GetBookRespDto> getBookList(int pageNumber, int pageSize) {

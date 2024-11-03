@@ -14,8 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class SearchBookService {
+
   private final BookMapper bookMapper;
-  public List<GetBookRespDto> searchBooksBySort(Long categoryId, String sort, String title,String author ){
+
+  public List<GetBookRespDto> searchBooksBySort(Long categoryId, String sort, String title,
+      String author) {
 
     List<Book> books = bookMapper.findBooks(categoryId, sort, title, author);
     return books.stream()

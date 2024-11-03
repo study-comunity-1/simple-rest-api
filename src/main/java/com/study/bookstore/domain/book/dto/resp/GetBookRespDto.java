@@ -11,6 +11,7 @@ public record GetBookRespDto(
     String description  // 책 소개
 
 ) {
+
   // Book 엔티티를 GetBookRespDto로 변환하는 정적 팩토리 메서드
   public static GetBookRespDto of(Book book) {
     return new GetBookRespDto(
