@@ -25,7 +25,7 @@ public class CreateReviewService {
   public Review createReview(CreateReviewReqDto req, User user) {
 
     Book book1 = bookRepository.findById(req.bookId())
-        .orElseThrow(()-> new RuntimeException("해당 책을 찾을 수 없습니다."));
+        .orElseThrow(() -> new RuntimeException("해당 책을 찾을 수 없습니다."));
 
     //평점은 0.5단위이며 5점 만점, 세 가지 조건 중 하나라도 참이면 예외 발생
     if (req.rating() < 0.0 || req.rating() > 5.0 || req.rating() % 0.5 != 0) {
@@ -39,12 +39,12 @@ public class CreateReviewService {
     }
     //2.사용자가 해당 책을 구매했는지에 대한 확인
     boolean purchasedBook = reviewRepository.existsReview(user, book1);
-    if(!purchasedBook){
+    if (!purchasedBook) {
       throw new RuntimeException("책을 구매한 사용자만 리뷰작성이 가능합니다.");
     }
 
     //3.of 메서드로 리뷰 엔티티 생성
-// 리뷰 생성 및 저장
+    // 리뷰 생성 및 저장
     Review review = Review.builder()
         .book(book1)
         .user(user)

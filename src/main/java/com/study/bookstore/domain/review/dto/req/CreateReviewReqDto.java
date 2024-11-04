@@ -7,11 +7,12 @@ import com.study.bookstore.domain.user.entity.User;
 public record CreateReviewReqDto(
 
     Long bookId,
-  Double rating,
-  String content
+    Double rating,
+    String content
 
 ) {
-  public Review of(Book book, User user){
+
+  public Review of(Book book, User user) {
     return Review.builder()
         .book(book)
         .user(user)
