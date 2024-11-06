@@ -47,7 +47,8 @@ public class BookController {
 
   @Operation(summary = "책 추가", description = "책 추가 시 관리자만 가능")
   @PostMapping("/categories/{categoryId}/books")
-  public ResponseEntity<String> addBook(@PathVariable Long categoryId, @RequestBody CreateBookReqDto req, HttpSession session) {
+  public ResponseEntity<String> addBook(@PathVariable Long categoryId,
+      @RequestBody CreateBookReqDto req, HttpSession session) {
 
     //유저 객체에 세션정보를 받아온다.
     User user = (User) session.getAttribute("user");

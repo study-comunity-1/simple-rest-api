@@ -6,7 +6,6 @@ public record CreateCategoryReqDto(
 
     String categoryName
 ) {
-
   public Category of() {
     return Category.builder()
         .categoryName(this.categoryName)
