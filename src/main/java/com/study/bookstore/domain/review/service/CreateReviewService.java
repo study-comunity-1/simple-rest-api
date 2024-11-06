@@ -3,6 +3,7 @@ package com.study.bookstore.domain.review.service;
 
 import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.book.entity.repository.BookRepository;
+import com.study.bookstore.domain.orderItem.entity.repository.OrderItemRepository;
 import com.study.bookstore.domain.review.dto.req.CreateReviewReqDto;
 import com.study.bookstore.domain.review.entity.Review;
 import com.study.bookstore.domain.review.entity.repository.ReviewRepository;
@@ -18,14 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreateReviewService {
 
   private final ReviewRepository reviewRepository;
-  private final OrderItemsRepository orderItemsRepository;
+  private final OrderItemRepository orderItemRepository;
   private final BookRepository bookRepository;
 
 
   public Review createReview(CreateReviewReqDto req, User user) {
 
-    Book book1 = bookRepository.findById(req.bookId())
-        .orElseThrow(() -> new RuntimeException("해당 책을 찾을 수 없습니다."));
+    Book book = bookRepository.findById(req.bookId())
+        .orElseThrow(() -> new RuntimeException("리뷰를 작성하려는 책을 찾을 수 없습니다."));
 
     //평점은 0.5단위이며 5점 만점, 세 가지 조건 중 하나라도 참이면 예외 발생
     if (req.rating() < 0.0 || req.rating() > 5.0 || req.rating() % 0.5 != 0) {
@@ -33,25 +34,25 @@ public class CreateReviewService {
     }
 
     //1.사용자가 해당 책에 대한 리뷰를 작성했는지 확인
-    boolean reviewedBook = reviewRepository.existsReview(user, book1);
+    boolean reviewedBook = reviewRepository.existsByUserAndBook(user, book);
     if (reviewedBook) {
       throw new RuntimeException("중복된 리뷰입니다.");
     }
     //2.사용자가 해당 책을 구매했는지에 대한 확인
-    boolean purchasedBook = reviewRepository.existsReview(user, book1);
+    boolean purchasedBook = orderItemRepository.existsByUserAndBook(user, book);
     if (!purchasedBook) {
       throw new RuntimeException("책을 구매한 사용자만 리뷰작성이 가능합니다.");
     }
 
-    //3.of 메서드로 리뷰 엔티티 생성
     // 리뷰 생성 및 저장
     Review review = Review.builder()
-        .book(book1)
+        .book(book)
         .user(user)
         .rating(req.rating())
         .content(req.content())
         .build();
 
+    //리뷰 저장
     return reviewRepository.save(review);
 
 
