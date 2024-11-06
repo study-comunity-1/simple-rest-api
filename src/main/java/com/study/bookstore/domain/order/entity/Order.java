@@ -61,16 +61,11 @@ public class Order extends BaseTimeEntity {
   // cascade = CascadeType.ALL : order가 저장,삭제될 때 orderItem도 같이 저장,삭제
   private List<OrderItem> orderItems;
 
-  public void createOrder(User user, PaymentMethod paymentMethod) {
-    this.user = user;
-    this.totalAmount = -1;
-    this.paymentMethod = paymentMethod;
+  public void updateTotalAmount(int totalAmount) {
+    this.totalAmount = totalAmount;
   }
 
-  public void addOrderItem(List<OrderItem> orderItems) {
-    this.orderItems.addAll(orderItems);
-    for (OrderItem orderItem : orderItems) {
-      orderItem.addOrder(this);
-    }
+  public void updateStatus(Status status) {
+    this.status = status;
   }
 }

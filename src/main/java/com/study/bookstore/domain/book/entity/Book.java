@@ -81,19 +81,21 @@ public class Book extends BaseTimeEntity {
   private LocalDateTime updatedDate;*/
 
 
- public void updateFrom(UpdateBookReqDto req) {
-   this.title = req.title();
-   this.author = req.author();
-   this.publisher = req.publisher();
-   this.price = req.price();
-   this.stock = req.stock();
-   this.publishedDate = req.publishedDate();
-   this.page = req.page();
-   this.category = req.category();
-   this.description = req.description();
-   this.isbn = req.isbn();
-   // updatedDate, createdDate는 JPA에서 자동으로 관리
- }
+  public void updateFrom(UpdateBookReqDto req) {
+    this.title = req.title();
+    this.author = req.author();
+    this.publisher = req.publisher();
+    this.price = req.price();
+    this.stock = req.stock();
+    this.publishedDate = req.publishedDate();
+    this.page = req.page();
+    this.category = req.category();
+    this.description = req.description();
+    this.isbn = req.isbn();
+    // updatedDate, createdDate는 JPA에서 자동으로 관리
+  }
 
-
+  public void buyBook(int quantity) {
+    this.stock -= quantity;
+  }
 }
