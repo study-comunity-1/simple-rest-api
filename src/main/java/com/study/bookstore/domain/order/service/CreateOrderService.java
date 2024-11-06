@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,7 @@ public class CreateOrderService {
   private final OrderItemRepository orderItemRepository;
   private final BookRepository bookRepository;
 
-  public void createOrder(PaymentMethod paymentMethod, HttpSession session, User user)
+  public Long createOrder(PaymentMethod paymentMethod, HttpSession session, User user)
       throws Exception {
     try {
       Order order = Order.builder()
@@ -62,11 +63,13 @@ public class CreateOrderService {
 
       order.addOrderItem(orderItems);
 */
-      orderRepository.save(order);
+      Order saveOrder = orderRepository.save(order);
+
+      return saveOrder.getOrderId();
+      // 저장한 order의 id값을 가져옴
+
     } catch (Exception e) {
       throw new Exception("");
     }
-
-
   }
 }
