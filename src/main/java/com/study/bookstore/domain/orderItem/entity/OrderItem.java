@@ -2,6 +2,7 @@ package com.study.bookstore.domain.orderItem.entity;
 
 import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.order.entity.Order;
+import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,6 +40,10 @@ public class OrderItem extends BaseTimeEntity {
   // 하나의 book은 여러개의 orderItem을 가질 수 있다.
   @JoinColumn(name = "book_id", nullable = false)
   private Book book;
+
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 
   @Column(nullable = false)
   private int quantity;
