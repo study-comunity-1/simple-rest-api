@@ -1,7 +1,6 @@
-package com.study.bookstore.domain.orderItem.entity;
+package com.study.bookstore.domain.review.entity;
 
 import com.study.bookstore.domain.book.entity.Book;
-import com.study.bookstore.domain.order.entity.Order;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
@@ -13,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,31 +23,28 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "orderItems")
-public class OrderItem extends BaseTimeEntity {
+@Table(name = "reviews", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"book_id", "user_id"})
+})//book_id와ㅏ user_id의 조합이 유니크하도록 설정
+public class Review extends BaseTimeEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "order_item_id")
-  private Long orderItemId;
+  @Column(name = "review_id")
+  private Long reviewId;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  // 하나의 order는 여러개의 orderItem을 가질 수 있다.
-  @JoinColumn(name = "order_id", nullable = false)
-  private Order order;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  // 하나의 book은 여러개의 orderItem을 가질 수 있다.
   @JoinColumn(name = "book_id", nullable = false)
   private Book book;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id", nullable = false)
   private User user;
 
   @Column(nullable = false)
-  private int quantity;
+  private double rating;
 
-  @Column(name = "item_price", nullable = false)
-  private int itemPrice;
+  @Column(columnDefinition = "TEXT", nullable = false)
+  private String content;
+
 }
