@@ -71,7 +71,6 @@ public class Book extends BaseTimeEntity {
   @Comment("책 코드")
   private String isbn;
 
-
   @ManyToOne //category_id라는 칼럼이 추가되어, Category와 연결될 수 있게 한다.
   @JoinColumn(name = "category_id", insertable = false, updatable = false) // FK 설정
   private Category category; // 카테고리와 객체 자체와 연결되며, 이를 통해 Book 클래스에서 카테고리의 이름이나 설명 같은 속성에 바로 접근할 수 있게 함.
@@ -95,5 +94,7 @@ public class Book extends BaseTimeEntity {
     // updatedDate, createdDate는 JPA에서 자동으로 관리
   }
 
-
+  public void buyBook(int quantity) {
+    this.stock -= quantity;
+  }
 }
