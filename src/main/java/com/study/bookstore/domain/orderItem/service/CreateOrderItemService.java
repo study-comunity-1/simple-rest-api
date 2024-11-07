@@ -37,7 +37,6 @@ public class CreateOrderItemService {
       throw new IllegalArgumentException("장바구니가 비어있습니다.");
     }
 
-    List<OrderItem> orderItems = new ArrayList<>();
     int totalAmount = 0;
 
     for (Map.Entry<Long, Integer> entry : cart.entrySet()) {

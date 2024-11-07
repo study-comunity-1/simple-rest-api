@@ -38,7 +38,6 @@ public class UpdateOrderStatusService {
         int quantity = orderItem.getQuantity();
 
         if (book.getStock() < quantity) {
-          order.updateStatus(Status.PAYMENT_FAILED);
           throw new IllegalArgumentException("재고가 부족합니다.");
         }
 
@@ -47,7 +46,6 @@ public class UpdateOrderStatusService {
       }
 
       if (totalAmount != order.getTotalAmount()) {
-        order.updateStatus(Status.PAYMENT_FAILED);
         throw new IllegalStateException("금액이 일치하지 않습니다.");
       }
 
@@ -58,6 +56,15 @@ public class UpdateOrderStatusService {
       for (OrderItem orderItem : orderItems) {
         orderItem.getBook().buyBook(orderItem.getQuantity());
       }
+    }
+  }
+
+  public void updateFail(Long orderId) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new NoSuchElementException("해당 ID의 주문이 존재하지 않습니다."));
+
+    if (order.getStatus() == Status.PENDING) {
+      order.updateStatus(Status.PAYMENT_FAILED);
     }
   }
 }
