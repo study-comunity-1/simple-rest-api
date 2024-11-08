@@ -9,5 +9,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
-boolean existsByUserAndBook(User user, Book book);
 }
