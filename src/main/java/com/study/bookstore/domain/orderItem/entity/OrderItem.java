@@ -47,8 +47,4 @@ public class OrderItem extends BaseTimeEntity {
 
   @Column(name = "item_price", nullable = false)
   private int itemPrice;
-
-  public void addOrder(Order order) {
-    this.order = order;
-  }
 }

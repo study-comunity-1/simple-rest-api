@@ -25,51 +25,31 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreateOrderService {
 
   private final OrderRepository orderRepository;
-  private final OrderItemRepository orderItemRepository;
-  private final BookRepository bookRepository;
 
-  public Long createOrder(PaymentMethod paymentMethod, HttpSession session, User user)
-      throws Exception {
+  public Long createOrder(PaymentMethod paymentMethod, User user) {
     try {
       Order order = Order.builder()
           .user(user)
           .paymentMethod(paymentMethod)
           .totalAmount(-1)
           .build();
-/*
-      Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
-      if (cart == null) {
-        throw new IllegalArgumentException("장바구니가 비어있습니다.");
-      }
 
-      List<OrderItem> orderItems = new ArrayList<>();
-
-      for (Map.Entry<Long, Integer> entry : cart.entrySet()) {
-        Long bookId = entry.getKey();
-        int quantity = entry.getValue();
-
-        Book book = bookRepository.findById(bookId)
-            .orElseThrow(() -> new NoSuchElementException("해당 ID의 책은 존재하지 않습니다."));
-
-        OrderItem orderItem = OrderItem.builder()
-            .book(book)
-            .quantity(quantity)
-            .itemPrice(book.getPrice())
-            .order(order)
-            .build();
-
-        orderItems.add(orderItem);
-      }
-
-      order.addOrderItem(orderItems);
-*/
       Order saveOrder = orderRepository.save(order);
 
       return saveOrder.getOrderId();
       // 저장한 order의 id값을 가져옴
 
     } catch (Exception e) {
-      throw new Exception("");
+      throw new RuntimeException(e.getMessage());
     }
+  }
+
+  public void updateTotalAmount(Long orderId, int totalAmount) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new NoSuchElementException("해당 ID의 주문이 존재하지 않습니다."));
+
+    order.updateTotalAmount(totalAmount);
+
+    orderRepository.save(order);
   }
 }
