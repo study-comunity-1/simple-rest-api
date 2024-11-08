@@ -20,14 +20,12 @@ public class UpdateBookService {
 
   private final BookRepository bookRepository;
 
-  public void updateBook(UpdateBookReqDto req, Long bookId){
+  public void updateBook(UpdateBookReqDto req, Long bookId) {
     Book existingBook = bookRepository.findById(bookId)
-            .orElseThrow(() -> new EntityNotFoundException("책을 찾을 수 없습니다.:ID" + bookId));
+        .orElseThrow(() -> new EntityNotFoundException("책을 찾을 수 없습니다.:ID" + bookId));
 
     existingBook.updateFrom(req);
     bookRepository.save(existingBook);
-
-
 
 
   }
