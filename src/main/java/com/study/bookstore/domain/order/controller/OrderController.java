@@ -1,6 +1,7 @@
 package com.study.bookstore.domain.order.controller;
 
 import com.study.bookstore.domain.order.entity.PaymentMethod;
+import com.study.bookstore.domain.order.service.CancelOrderService;
 import com.study.bookstore.domain.order.service.CreateOrderService;
 import com.study.bookstore.domain.order.service.UpdateOrderStatusService;
 import com.study.bookstore.domain.orderItem.service.CreateOrderItemService;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +27,7 @@ public class OrderController {
   private final CreateOrderService createOrderService;
   private final CreateOrderItemService createOrderItemService;
   private final UpdateOrderStatusService updateOrderStatusService;
+  private final CancelOrderService cancelOrderService;
 
   @Operation(summary = "주문 생성", description = "장바구니에 담긴 상품들을 주문합니다.")
   @PostMapping("/cartOrder")
@@ -81,6 +84,24 @@ public class OrderController {
     } catch (Exception e) {
       // 만약 결제가 실패하거나 정해진 시간안에 결제를 하지 않은 경우에는 결제실패상태로 변경
       updateOrderStatusService.updateFail(orderId);
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  @Operation(summary = "주문취소", description = "유저의 요청으로 주문이 자동으로 취소됩니다.")
+  @PutMapping("/cancelOrder/{orderId}")
+  public ResponseEntity<String> cancelOrder(@PathVariable Long orderId, HttpSession session) {
+    try {
+      User user = (User) session.getAttribute("user");
+
+      if (user == null) {
+        return ResponseEntity.badRequest().body("로그인 해주세요.");
+      }
+
+      cancelOrderService.cancelOrder(orderId, user);
+
+      return ResponseEntity.ok().body("주문이 취소되었습니다.");
+    } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }

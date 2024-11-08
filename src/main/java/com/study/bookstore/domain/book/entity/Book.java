@@ -95,7 +95,13 @@ public class Book extends BaseTimeEntity {
     // updatedDate, createdDate는 JPA에서 자동으로 관리
   }
 
+  // 책 주문시 재고 -- (결제 대기 -> 결제요청으로 상태가 변경될 때)
   public void buyBook(int quantity) {
     this.stock -= quantity;
+  }
+
+  // 주문 취소시 재고 ++ (결제취소로 상태가 변경될 때)
+  public void returnBook(int quantity) {
+    this.stock += quantity;
   }
 }
