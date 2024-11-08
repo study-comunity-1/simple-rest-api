@@ -8,10 +8,10 @@ public record GetBookRespDto(
     String publisher,   // 출판사
     int price,          // 가격
     int stock,          // 재고
-    String category,     // 카테고리
     String description  // 책 소개
 
 ) {
+
   // Book 엔티티를 GetBookRespDto로 변환하는 정적 팩토리 메서드
   public static GetBookRespDto of(Book book) {
     return new GetBookRespDto(
@@ -20,7 +20,6 @@ public record GetBookRespDto(
         book.getPublisher(),
         book.getPrice(),
         book.getStock(),
-        book.getCategory(),
         book.getDescription()
     );
   }
