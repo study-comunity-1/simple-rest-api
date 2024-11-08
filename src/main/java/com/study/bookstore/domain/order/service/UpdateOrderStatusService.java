@@ -25,7 +25,7 @@ public class UpdateOrderStatusService {
         .orElseThrow(() -> new NoSuchElementException("해당 ID의 주문이 존재하지 않습니다."));
 
     if (order.getStatus() == Status.PENDING) {
-    // order의 현재 상태가 PENDING(결제대기)상태인지 확인
+    // order의 현재 상태가 PENDING(결제대기)상태인지 확인 -> 결제요청상태로 변경
 
       List<OrderItem> orderItems = orderItemRepository.findAllByOrder_orderId(orderId);
 
@@ -57,13 +57,24 @@ public class UpdateOrderStatusService {
         orderItem.getBook().buyBook(orderItem.getQuantity());
       }
     }
+
+    if (order.getStatus() == Status.READY_FOR_PAYMENT) {
+    // order의 현재 상태가 READY_FOR_PAYMENT(결제요청)상태인지 확인 -> 결제완료상태로 변경
+      try {
+        // 실제로 결제가 이루어지지는 않으므로 가상으로 결제가 완료되었다고 가정
+        order.updateStatus(Status.PAYMENT_COMPLETED);
+      } catch (Exception e) {
+        throw new RuntimeException("결제 실패");
+      }
+
+    }
   }
 
   public void updateFail(Long orderId) {
     Order order = orderRepository.findById(orderId)
         .orElseThrow(() -> new NoSuchElementException("해당 ID의 주문이 존재하지 않습니다."));
 
-    if (order.getStatus() == Status.PENDING) {
+    if (order.getStatus() == Status.PENDING || order.getStatus() == Status.READY_FOR_PAYMENT) {
       order.updateStatus(Status.PAYMENT_FAILED);
     }
   }

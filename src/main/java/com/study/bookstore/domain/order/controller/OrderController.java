@@ -60,6 +60,20 @@ public class OrderController {
       return ResponseEntity.ok().body("이제 결제가 가능합니다.");
     } catch (Exception e) {
       updateOrderStatusService.updateFail(orderId);
+      // 예외시 상태를 결제실패로 변경
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  @PutMapping("/updateToPaymentCompleted")
+  public ResponseEntity<?> updateToPaymentCompleted(@RequestParam Long orderId) {
+    try {
+      updateOrderStatusService.updateStatus(orderId);
+
+      return ResponseEntity.ok().body("결제가 완료되었습니다.");
+    } catch (Exception e) {
+      // 만약 결제가 실패하거나 정해진 시간안에 결제를 하지 않은 경우에는 결제실패상태로 변경
+      updateOrderStatusService.updateFail(orderId);
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
