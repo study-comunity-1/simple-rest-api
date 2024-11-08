@@ -11,6 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
   List<OrderItem> findAllByOrder_orderId(Long orderId);
-  
-  boolean existsByUserAndBook(User user, Book book);
+
 }

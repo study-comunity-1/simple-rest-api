@@ -61,4 +61,7 @@ public class User extends BaseTimeEntity {
     this.nick = nick;
     this.address = address;
   }
+  public Long getId() {
+    return userId;
+  }
 }

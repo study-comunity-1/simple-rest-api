@@ -12,7 +12,7 @@ public record CreateReviewReqDto(
 
 ) {
   // Book과 User 엔티티를 받아서 Review로 변환하는 메서드
-  public Review of(Book book, User user) {
+  public Review toReview(Book book, User user) {
     return Review.builder()
         .book(book)
         .user(user)

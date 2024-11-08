@@ -93,7 +93,6 @@ public class Book extends BaseTimeEntity {
     this.isbn = req.isbn();
     // updatedDate, createdDate는 JPA에서 자동으로 관리
   }
-
   public void buyBook(int quantity) {
     this.stock -= quantity;
   }

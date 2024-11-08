@@ -47,4 +47,12 @@ public class Review extends BaseTimeEntity {
   @Column(columnDefinition = "TEXT", nullable = false)
   private String content;
 
+  public void setContent(String content) {
+    this.content=content;
+  }
+
+  public void setRating(double rating) {
+    this.rating=rating;
+  }
+
 }

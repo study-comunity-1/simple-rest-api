@@ -38,12 +38,9 @@ public class OrderItem extends BaseTimeEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   // 하나의 book은 여러개의 orderItem을 가질 수 있다.
+
   @JoinColumn(name = "book_id", nullable = false)
   private Book book;
-
-  @ManyToOne
-  @JoinColumn(name = "user_id")
-  private User user;
 
   @Column(nullable = false)
   private int quantity;
