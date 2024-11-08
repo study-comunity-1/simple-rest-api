@@ -67,5 +67,10 @@ public class Order extends BaseTimeEntity {
 
   public void updateStatus(Status status) {
     this.status = status;
+
+    // 상태가 결제완료로 바뀌면 결제일시에 현재 날짜 넣어주기
+    if (status == Status.PAYMENT_COMPLETED) {
+      this.paymentDate = LocalDateTime.now();
+    }
   }
 }
