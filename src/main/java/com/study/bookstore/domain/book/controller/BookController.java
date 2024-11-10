@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,7 +47,7 @@ public class BookController {
 
 
   @Operation(summary = "책 추가", description = "책 추가 시 관리자만 가능")
-  @PostMapping("/categories/{categoryId}/books")
+  @PostMapping("/categories/{categoryId}")
   public ResponseEntity<String> addBook(@PathVariable Long categoryId,
       @RequestBody CreateBookReqDto req, HttpSession session) {
 
@@ -178,17 +179,17 @@ public class BookController {
     return ResponseEntity.ok("재고가 삭제 되었습니다.");
   }
 
-  @Operation(summary = "책 카테고리검색 및 정렬 기능")
+  @Operation(summary = "책 카테고리 검색 및 정렬 기능")
   @GetMapping
   public ResponseEntity<List<GetBookRespDto>> searchBooks(
       @RequestParam(required = false) Long categoryId,
       @RequestParam(required = false) String sort,
       @RequestParam(required = false) String title,
-      @RequestParam(required = false) String author
+      @RequestParam(required = false) String author,
+      Pageable pageable
   ) {
     List<GetBookRespDto> books = searchBookService.searchBooksBySort(categoryId, sort, title,
         author);
-
     return ResponseEntity.ok(books);
   }
 }

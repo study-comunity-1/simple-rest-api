@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "reviews", uniqueConstraints = {
     @UniqueConstraint(columnNames = {"book_id", "user_id"})
-})//book_id와ㅏ user_id의 조합이 유니크하도록 설정
+})//book_id와 user_id의 조합이 유니크하도록 설정
 public class Review extends BaseTimeEntity {
 
   @Id

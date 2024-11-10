@@ -44,7 +44,6 @@ public class CreateReviewService {
     //2.사용자가 해당 책을 구매했는지에 대한 확인
     boolean purchasedBook = orderRepository.existsByUserAndOrderItemsBook(user, book);
     if (!purchasedBook) {
-      System.out.println("사용자 " + user.getId() + "는 책 " + book.getId() + "을 구매하지 않았습니다.");
       throw new RuntimeException("책을 구매한 사용자만 리뷰 작성이 가능합니다.");
     }
     //리뷰 저장
