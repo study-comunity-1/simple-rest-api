@@ -22,7 +22,7 @@ public class CreateBookService {
   public Book addBook(CreateBookReqDto req, Long categoryId) {
 
     //1.카테고리 id로 카테고리를 조회한다.
-    Category category = categoryRepository.findById(req.categoryId())
+    Category category = categoryRepository.findById(categoryId)
         .orElseThrow(() -> new IllegalArgumentException("카테고리가 존재하지 않습니다."));
 
     //2.dto에서 카테고리 id를 포함한 book 엔티티 생성
@@ -30,8 +30,5 @@ public class CreateBookService {
 
     //3.책을 데이터베이스에 저장
     return bookRepository.save(book);
-
-
-
   }
 }

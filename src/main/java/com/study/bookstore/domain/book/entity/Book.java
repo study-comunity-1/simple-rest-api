@@ -3,17 +3,22 @@ package com.study.bookstore.domain.book.entity;
 
 import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
 import com.study.bookstore.domain.category.entity.Category;
+import com.study.bookstore.domain.review.entity.Review;
 import com.study.bookstore.global.entity.BaseTimeEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -76,11 +81,12 @@ public class Book extends BaseTimeEntity {
   @JoinColumn(name = "category_id", insertable = false, updatable = false) // FK 설정
   private Category category; // 카테고리와 객체 자체와 연결되며, 이를 통해 Book 클래스에서 카테고리의 이름이나 설명 같은 속성에 바로 접근할 수 있게 함.
 
+  @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  private List<Review> reviews;// 하나의 책에 여러 개의 리뷰가 연결됨
 
   public void setStock(int stock) {
     this.stock = stock; // stock 값을 설정하는 메서드
   }
-
 
   public void updateFrom(UpdateBookReqDto req) {
     this.title = req.title();
