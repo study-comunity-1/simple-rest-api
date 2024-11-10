@@ -12,7 +12,6 @@ public record UpdateBookReqDto(
     int stock, // 재고
     LocalDate publishedDate, // 출판 일자
     int page, // 페이지 수
-    String category, // 카테고리
     String description, // 책 소개
     String isbn // 책 코드
 ) {
@@ -26,7 +25,6 @@ public record UpdateBookReqDto(
         .stock(this.stock)
         .publishedDate(this.publishedDate)
         .page(this.page)
-        .category(this.category)
         .description(this.description)
         .isbn(this.isbn)
         .build();
