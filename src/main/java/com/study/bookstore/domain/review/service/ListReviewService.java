@@ -1,5 +1,7 @@
 package com.study.bookstore.domain.review.service;
 
+import com.study.bookstore.domain.book.entity.Book;
+import com.study.bookstore.domain.book.entity.repository.BookRepository;
 import com.study.bookstore.domain.review.dto.resp.ReviewListRespDto;
 import com.study.bookstore.domain.review.entity.Review;
 import com.study.bookstore.domain.review.entity.repository.ReviewRepository;
@@ -14,10 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ListReviewService {
     private final ReviewRepository reviewRepository;
+    private final BookRepository bookRepository;
 
    //책에 대한 리뷰 목록 조회
     public List<ReviewListRespDto> getReviewsForBook(Long bookId) {
-      //책에 해당하는 review들을 db에서 조회
+      // bookId로 Book 객체를 찾기
+      Book book = bookRepository.findById(bookId)
+          .orElseThrow(() -> new RuntimeException("Book not found"));
+
+      // Book 객체를 사용하여 리뷰 조회
       List<Review> reviews = reviewRepository.findByBookId(bookId);
 
       // Review 객체들을 ReviewListRespDto로 변환(엔티티 그대로 보내주면 보안상 문제)
