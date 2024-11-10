@@ -3,6 +3,7 @@ package com.study.bookstore.domain.order.controller;
 import com.study.bookstore.domain.order.entity.PaymentMethod;
 import com.study.bookstore.domain.order.service.CancelOrderService;
 import com.study.bookstore.domain.order.service.CreateOrderService;
+import com.study.bookstore.domain.order.service.GetOrderListService;
 import com.study.bookstore.domain.order.service.UpdateOrderStatusService;
 import com.study.bookstore.domain.orderItem.service.CreateOrderItemService;
 import com.study.bookstore.domain.user.entity.User;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,6 +30,7 @@ public class OrderController {
   private final CreateOrderItemService createOrderItemService;
   private final UpdateOrderStatusService updateOrderStatusService;
   private final CancelOrderService cancelOrderService;
+  private final GetOrderListService getOrderListService;
 
   @Operation(summary = "주문 생성", description = "장바구니에 담긴 상품들을 주문합니다.")
   @PostMapping("/cartOrder")
@@ -101,6 +104,29 @@ public class OrderController {
       cancelOrderService.cancelOrder(orderId, user);
 
       return ResponseEntity.ok().body("주문이 취소되었습니다.");
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  @Operation(summary = "주문 목록 조회", description = "유저의 주문 내역을 조회합니다.")
+  @GetMapping("/getOrderList")
+  public ResponseEntity<?> gerOrderList(
+      @RequestParam(defaultValue = "0") int pageNo,
+      @RequestParam(defaultValue = "10") int pageSize,
+      @RequestParam(defaultValue = "createdDate") String sortBy,
+      @RequestParam(defaultValue = "DESC") String direction,
+      HttpSession session) {
+    try {
+      User user = (User) session.getAttribute("user");
+
+      if (user == null) {
+        return ResponseEntity.badRequest().body("로그인 해주세요");
+      }
+
+      return ResponseEntity.ok().body(
+          getOrderListService.getOrderList(
+              pageNo, pageSize, sortBy, direction, user.getUserId()).getContent());
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
