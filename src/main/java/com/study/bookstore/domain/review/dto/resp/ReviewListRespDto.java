@@ -9,5 +9,7 @@ public record ReviewListRespDto(
     String nick,
     LocalDateTime createdDate,
     LocalDateTime updatedDate
-) {}//사용자에게 전달 될 데이터
+) {
+
+}
 
