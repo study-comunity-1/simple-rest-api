@@ -1,7 +1,9 @@
 package com.study.bookstore.domain.order.service;
 
 import com.study.bookstore.domain.order.dto.resp.GetOrderListRespDto;
+import com.study.bookstore.domain.order.entity.Order;
 import com.study.bookstore.domain.order.entity.repository.OrderRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

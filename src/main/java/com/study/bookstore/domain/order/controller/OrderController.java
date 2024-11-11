@@ -1,15 +1,18 @@
 package com.study.bookstore.domain.order.controller;
 
+import com.study.bookstore.domain.order.dto.resp.GetOrderListRespDto;
 import com.study.bookstore.domain.order.entity.PaymentMethod;
 import com.study.bookstore.domain.order.service.CancelOrderService;
 import com.study.bookstore.domain.order.service.CreateOrderService;
 import com.study.bookstore.domain.order.service.GetOrderListService;
+import com.study.bookstore.domain.order.service.GetOrderService;
 import com.study.bookstore.domain.order.service.UpdateOrderStatusService;
 import com.study.bookstore.domain.orderItem.service.CreateOrderItemService;
 import com.study.bookstore.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +34,7 @@ public class OrderController {
   private final UpdateOrderStatusService updateOrderStatusService;
   private final CancelOrderService cancelOrderService;
   private final GetOrderListService getOrderListService;
+  private final GetOrderService getOrderService;
 
   @Operation(summary = "주문 생성", description = "장바구니에 담긴 상품들을 주문합니다.")
   @PostMapping("/cartOrder")
@@ -127,6 +131,21 @@ public class OrderController {
       return ResponseEntity.ok().body(
           getOrderListService.getOrderList(
               pageNo, pageSize, sortBy, direction, user.getUserId()).getContent());
+    } catch (Exception e) {
+      return ResponseEntity.badRequest().body(e.getMessage());
+    }
+  }
+
+  @GetMapping("/getOrder/{orderId}")
+  public ResponseEntity<?> getOrder(@PathVariable Long orderId, HttpSession session) {
+    try {
+      User user = (User) session.getAttribute("user");
+
+      if (user == null) {
+        return ResponseEntity.badRequest().body("로그인 해주세요");
+      }
+
+      return ResponseEntity.ok().body(getOrderService.getOrder(orderId, user));
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
