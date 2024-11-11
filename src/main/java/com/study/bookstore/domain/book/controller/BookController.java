@@ -16,7 +16,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -181,19 +184,27 @@ public class BookController {
 
   @Operation(summary = "책 카테고리 검색 및 정렬 기능")
   @GetMapping
-  public ResponseEntity<List<GetBookRespDto>> searchBooks(
+  public ResponseEntity<Page<GetBookRespDto>> searchBooks(
       @RequestParam(required = false) Long categoryId,
-      @RequestParam(required = false) String sort,
+      @RequestParam(required = false, defaultValue = "title") String sort,
       @RequestParam(required = false) String title,
       @RequestParam(required = false) String author,
-      Pageable pageable
+      @RequestParam(defaultValue = "0") int pageNo, // 페이지 번호 기본값 0
+      @RequestParam(defaultValue = "10") int pageSize, // 페이지 크기 기본값 10
+      @RequestParam(defaultValue = "title") String sortBy, // 기본 정렬 기준은 제목
+      @RequestParam(defaultValue = "ASC") String direction // 기본 정렬 방향은 오름차순
   ) {
-    List<GetBookRespDto> books = searchBookService.searchBooksBySort(categoryId, sort, title,
-        author);
+
+    // Pageable 객체 생성 (PageRequest 사용)
+    Pageable pageable = PageRequest.of(pageNo, pageSize,
+        Sort.by(Sort.Direction.fromString(direction), sortBy));
+
+    // 서비스에서 책 목록 가져오기
+    Page<GetBookRespDto> books = searchBookService.searchBooksBySort(categoryId, sort, title,
+        author, pageable);
+
     return ResponseEntity.ok(books);
   }
 }
-
-
 
 
