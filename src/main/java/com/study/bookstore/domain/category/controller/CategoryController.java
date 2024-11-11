@@ -65,9 +65,10 @@ public class CategoryController {
       return ResponseEntity.ok().body("카테고리 수정 완료");
     }
   }
+
   @Operation(summary = "카테고리 삭제")
   @DeleteMapping("/delete/{categoryId}")
-  public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId, HttpSession session){
+  public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId, HttpSession session) {
     User user = (User) session.getAttribute("user");
     if (user == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
@@ -79,10 +80,10 @@ public class CategoryController {
       deleteCategoryService.deleteCategory(categoryId);
       return ResponseEntity.ok().body("카테고리 삭제 완료");
 
-      }
     }
-
   }
+
+}
 
 
 

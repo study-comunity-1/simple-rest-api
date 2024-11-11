@@ -22,7 +22,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -107,11 +109,18 @@ public class ReviewController {
   }
   @Operation(summary = "전체 리뷰 확인")
   @GetMapping("/allreviews")
-  public ResponseEntity<List<AllReviewListRespDto>> reviewAll(@ParameterObject Pageable pageable) {
+  public ResponseEntity<Page<AllReviewListRespDto>> reviewAll(
+      @RequestParam(defaultValue = "0") int pageNo,
+      @RequestParam(defaultValue = "10") int pageSize,
+      @RequestParam(defaultValue = "createdDate") String sortBy,
+      @RequestParam(defaultValue = "DESC") String direction){
 
-    Page<AllReviewListRespDto> reviews = allListReviewService.getAllReviews(pageable);
-    List<AllReviewListRespDto> reviewContent = reviews.getContent();
-    return ResponseEntity.ok(reviewContent);
+    //Pageable 객체 직접 생성
+    Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.fromString(direction), sortBy));
+
+    //서비스에서 리뷰 목록 가져오기
+    Page<AllReviewListRespDto>reviews = allListReviewService.getAllReviews(pageable);
+    return ResponseEntity.ok(reviews);
   }
 
 }
