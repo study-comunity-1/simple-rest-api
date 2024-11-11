@@ -1,5 +1,6 @@
 package com.study.bookstore.domain.user.entity;
 
+import com.study.bookstore.domain.review.entity.Review;
 import com.study.bookstore.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,7 +9,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -52,9 +55,11 @@ public class User extends BaseTimeEntity {
   // userType은 입력하지않으면 자동으로 USER가 된다
   // 관리자의 경우에만 회원가입시 userType = ADMIN으로 적어주기
 
+  //orders 추가해야함
 
-  // 나중에 orders, reviews 추가해야함
-
+  //유저가 가진 리뷰 목록
+  @OneToMany(mappedBy = "user")
+  private List<Review> reviews;
 
   public void updateUser(String password, String nick, String address) {
     this.password = password;

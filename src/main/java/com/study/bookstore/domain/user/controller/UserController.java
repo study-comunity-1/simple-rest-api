@@ -3,21 +3,29 @@ package com.study.bookstore.domain.user.controller;
 import com.study.bookstore.domain.user.dto.req.CreateUserReqDto;
 import com.study.bookstore.domain.user.dto.req.LoginUserReqDto;
 import com.study.bookstore.domain.user.dto.req.UpdateUserReqDto;
+import com.study.bookstore.domain.user.dto.resp.UserReviewListRespDto;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.domain.user.service.CreateUserService;
 import com.study.bookstore.domain.user.service.DeleteUserService;
+import com.study.bookstore.domain.user.service.GetUserReviewService;
 import com.study.bookstore.domain.user.service.LoginUserService;
 import com.study.bookstore.domain.user.service.UpdateUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "User", description = "유저 API")
@@ -30,6 +38,7 @@ public class UserController {
   private final LoginUserService loginUserService;
   private final DeleteUserService deleteUserService;
   private final UpdateUserService updateUserService;
+  private final GetUserReviewService getUserReviewService;
 
   @Operation(summary = "유저생성", description = "입력한 정보로 유저를 생성합니다.(회원가입)")
   @PostMapping
@@ -101,5 +110,16 @@ public class UserController {
     } catch (Exception e) {
       return ResponseEntity.status(401).body(e.getMessage());
     }
+  }
+
+  @Operation(summary = "유저 리뷰 리스트 확인", description = "유저가 쓴 리뷰 목록 조회")
+  @GetMapping("/{userId}/reviews")
+  public Page<UserReviewListRespDto> getUserReviews(
+      @PathVariable Long userId,
+      @RequestParam(defaultValue = "1") int page, // 기본값을 1로 설정
+      @RequestParam(defaultValue = "10") int size  // 기본값을 10으로 설정
+  ) {
+    Pageable pageable = PageRequest.of(page - 1, size); // Spring은 0부터 시작하므로 page - 1
+    return getUserReviewService.getUserReview(userId, pageable);
   }
 }
