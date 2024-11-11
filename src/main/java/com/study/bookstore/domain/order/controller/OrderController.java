@@ -115,7 +115,7 @@ public class OrderController {
 
   @Operation(summary = "주문 목록 조회", description = "유저의 주문 내역을 조회합니다.")
   @GetMapping("/getOrderList")
-  public ResponseEntity<?> gerOrderList(
+  public ResponseEntity<Object> gerOrderList(
       @RequestParam(defaultValue = "0") int pageNo,
       @RequestParam(defaultValue = "10") int pageSize,
       @RequestParam(defaultValue = "createdDate") String sortBy,
@@ -136,8 +136,9 @@ public class OrderController {
     }
   }
 
+  @Operation(summary = "주문 상세 조회", description = "해당 ID의 order를 상세조회합니다.")
   @GetMapping("/getOrder/{orderId}")
-  public ResponseEntity<?> getOrder(@PathVariable Long orderId, HttpSession session) {
+  public ResponseEntity<Object> getOrder(@PathVariable Long orderId, HttpSession session) {
     try {
       User user = (User) session.getAttribute("user");
 

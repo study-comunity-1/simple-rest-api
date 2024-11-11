@@ -1,7 +1,9 @@
 package com.study.bookstore.domain.user.entity;
 
+import com.study.bookstore.domain.order.entity.Order;
 import com.study.bookstore.domain.review.entity.Review;
 import com.study.bookstore.global.entity.BaseTimeEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -56,9 +58,11 @@ public class User extends BaseTimeEntity {
   // 관리자의 경우에만 회원가입시 userType = ADMIN으로 적어주기
 
   //orders 추가해야함
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Order> orders;
 
   //유저가 가진 리뷰 목록
-  @OneToMany(mappedBy = "user")
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Review> reviews;
 
   public void updateUser(String password, String nick, String address) {

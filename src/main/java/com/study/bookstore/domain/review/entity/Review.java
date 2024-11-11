@@ -3,6 +3,7 @@ package com.study.bookstore.domain.review.entity;
 import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.global.entity.BaseTimeEntity;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -37,7 +38,7 @@ public class Review extends BaseTimeEntity {
   @JoinColumn(name = "book_id", nullable = false)
   private Book book;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
 

@@ -36,7 +36,7 @@ public class Order extends BaseTimeEntity {
   @Column(name = "order_id")
   private Long orderId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   // 한 명의 유저는 여러개의 주문을 가질 수 있다.
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
@@ -55,7 +55,7 @@ public class Order extends BaseTimeEntity {
   @Column(name = "payment_date")
   private LocalDateTime paymentDate;
 
-  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
   // 하나의 order는 여러개의 orderItem을 가질 수 있다.
   // mappedBy = "order" : orderItems에 있는 order필드에 의해 매핑됨
   // cascade = CascadeType.ALL : order가 저장,삭제될 때 orderItem도 같이 저장,삭제
