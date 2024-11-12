@@ -18,6 +18,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.CascadeType;
+import org.hibernate.annotations.Cascade;
 
 @Getter
 @Builder
@@ -34,7 +36,7 @@ public class Review extends BaseTimeEntity {
   @Column(name = "review_id")
   private Long reviewId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
   @JoinColumn(name = "book_id", nullable = false)
   private Book book;
 
@@ -55,5 +57,4 @@ public class Review extends BaseTimeEntity {
   public void setRating(double rating) {
     this.rating=rating;
   }
-
 }

@@ -6,7 +6,6 @@ import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
 import com.study.bookstore.domain.category.entity.Category;
 import com.study.bookstore.domain.review.entity.Review;
 import com.study.bookstore.global.entity.BaseTimeEntity;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -25,7 +24,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.CascadeType; // Jakarta CascadeType을 임포트
+import org.hibernate.annotations.Cascade; // Hibernate Cascade 어노테이션 임포트
 import org.hibernate.annotations.Comment;
 
 @Getter
@@ -77,11 +77,12 @@ public class Book extends BaseTimeEntity {
   @Comment("책 코드")
   private String isbn;
 
-  @ManyToOne //category_id라는 칼럼이 추가되어, Category와 연결될 수 있게 한다.
+  @ManyToOne(cascade = CascadeType.ALL) // 카테고리가 삭제될 때 책도 삭제됨 category_id라는 칼럼이 추가되어, Category와 연결될 수 있게 한다.
   @JoinColumn(name = "category_id",  nullable = false) // FK 설정
   @JsonIgnore // 순환 참조 방지
   private Category category; // 카테고리와 객체 자체와 연결되며, 이를 통해 Book 클래스에서 카테고리의 이름이나 설명 같은 속성에 바로 접근할 수 있게 함.
 
+  // 리뷰와의 관계 설정 (책 삭제 시 리뷰도 함께 삭제)
   @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   private List<Review> reviews;// 하나의 책에 여러 개의 리뷰가 연결됨
 
