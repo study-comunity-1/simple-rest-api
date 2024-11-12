@@ -37,7 +37,7 @@ public class OrderController {
   private final GetOrderService getOrderService;
 
   @Operation(summary = "주문 생성", description = "장바구니에 담긴 상품들을 주문합니다.")
-  @PostMapping("/cartOrder")
+  @PostMapping("/orders")
   public ResponseEntity<String> createOrder(PaymentMethod paymentMethod, HttpSession session) {
     try {
       User user = (User) session.getAttribute("user");
@@ -67,7 +67,7 @@ public class OrderController {
   }
 
   @Operation(summary = "결제대기 -> 결제요청 상태 변경")
-  @PutMapping("/updateToReadyForPayment")
+  @PutMapping("/readyForPayment")
   public ResponseEntity<String> updateStatus(@RequestParam Long orderId) {
     try {
       updateOrderStatusService.updateStatus(orderId);
@@ -82,7 +82,7 @@ public class OrderController {
 
   @Operation(summary = "결제요청 -> 결제완료 상태 변경",
       description = "결제완료 이후의 상태는 일정시간이 지나면 자동으로 변경됩니다.")
-  @PutMapping("/updateToPaymentCompleted")
+  @PutMapping("/paymentCompleted")
   public ResponseEntity<String> updateToPaymentCompleted(@RequestParam Long orderId) {
     try {
       updateOrderStatusService.updateStatus(orderId);
@@ -96,7 +96,7 @@ public class OrderController {
   }
 
   @Operation(summary = "주문취소", description = "유저의 요청으로 주문이 자동으로 취소됩니다.")
-  @PutMapping("/cancelOrder/{orderId}")
+  @PutMapping("/cancel/{orderId}")
   public ResponseEntity<String> cancelOrder(@PathVariable Long orderId, HttpSession session) {
     try {
       User user = (User) session.getAttribute("user");
@@ -114,7 +114,7 @@ public class OrderController {
   }
 
   @Operation(summary = "주문 목록 조회", description = "유저의 주문 내역을 조회합니다.")
-  @GetMapping("/getOrderList")
+  @GetMapping("/list")
   public ResponseEntity<Object> gerOrderList(
       @RequestParam(defaultValue = "0") int pageNo,
       @RequestParam(defaultValue = "10") int pageSize,
@@ -137,7 +137,7 @@ public class OrderController {
   }
 
   @Operation(summary = "주문 상세 조회", description = "해당 ID의 order를 상세조회합니다.")
-  @GetMapping("/getOrder/{orderId}")
+  @GetMapping("/{orderId}")
   public ResponseEntity<Object> getOrder(@PathVariable Long orderId, HttpSession session) {
     try {
       User user = (User) session.getAttribute("user");
