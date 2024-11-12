@@ -1,7 +1,6 @@
 package com.study.bookstore.domain.category.entity;
 
 import com.study.bookstore.domain.book.entity.Book;
-import com.study.bookstore.domain.category.dto.req.UpdateCategoryReqDto;
 import com.study.bookstore.global.entity.BaseTimeEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -39,9 +38,6 @@ public class Category extends BaseTimeEntity {
   private List<Book> books = new ArrayList<>();// 해당 카테고리에 속하는 책 목록
 
   public void setCategoryName(String categoryName){
-
     this.categoryName = categoryName;
   }
-
-
 }

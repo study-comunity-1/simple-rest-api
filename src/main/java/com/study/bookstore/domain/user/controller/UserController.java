@@ -114,12 +114,12 @@ public class UserController {
 
   @Operation(summary = "유저 리뷰 리스트 확인", description = "유저가 쓴 리뷰 목록 조회")
   @GetMapping("/{userId}/reviews")
-  public Page<UserReviewListRespDto> getUserReviews(
-      @PathVariable Long userId,
+  public ResponseEntity<?> getUserReviews(
+      HttpSession session,
       @RequestParam(defaultValue = "1") int page, // 기본값을 1로 설정
       @RequestParam(defaultValue = "10") int size  // 기본값을 10으로 설정
   ) {
     Pageable pageable = PageRequest.of(page - 1, size); // Spring은 0부터 시작하므로 page - 1
-    return getUserReviewService.getUserReview(userId, pageable);
+    return ResponseEntity.ok().body(getUserReviewService.getUserReview(session, pageable).getContent());
   }
 }

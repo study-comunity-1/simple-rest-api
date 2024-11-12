@@ -1,7 +1,6 @@
 package com.study.bookstore.domain.category.controller;
 
 import com.study.bookstore.domain.category.dto.req.CreateCategoryReqDto;
-import com.study.bookstore.domain.category.dto.req.UpdateCategoryReqDto;
 import com.study.bookstore.domain.category.service.CreateCategoryService;
 import com.study.bookstore.domain.category.service.DeleteCategoryService;
 import com.study.bookstore.domain.category.service.UpdateCategoryService;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Category", description = "카테고리 API")
@@ -52,7 +52,7 @@ public class CategoryController {
   @Operation(summary = "카테고리 수정")
   @PutMapping("/update/{categoryId}")
   public ResponseEntity<String> updateCategory(@PathVariable Long categoryId,
-      @RequestBody UpdateCategoryReqDto req, HttpSession session) {
+     @RequestParam String categoryName, HttpSession session) {
     User user = (User) session.getAttribute("user");
     if (user == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
@@ -61,7 +61,7 @@ public class CategoryController {
     if (userType == null || userType == UserType.USER) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
     } else {
-      updateCategoryService.updateCategory(req);
+      updateCategoryService.updateCategory(categoryName, categoryId);
       return ResponseEntity.ok().body("카테고리 수정 완료");
     }
   }
