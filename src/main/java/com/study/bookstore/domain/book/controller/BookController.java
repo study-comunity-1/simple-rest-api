@@ -91,7 +91,7 @@ public class BookController {
   }
 
   @Operation(summary = "책 목록", description = "책 목록을 확인합니다.")
-  @GetMapping("/books")
+  @GetMapping
   public ResponseEntity<List<GetBookRespDto>> getBookList(
       @RequestParam(name = "pageNumber", defaultValue = "1") int pageNumber,
       @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
@@ -100,14 +100,14 @@ public class BookController {
   }
 
   @Operation(summary = "책 상세 조회", description = "책의 상세 정보를 확인합니다.")
-  @GetMapping("/books/{bookId}")
+  @GetMapping("{bookId}")
   public ResponseEntity<GetBookRespDto> getBookDetail(@PathVariable Long bookId) {
     GetBookRespDto bookDetail = GetBookDetailService.getBookDetail(bookId);
     return ResponseEntity.ok(bookDetail);
   }
 
   @Operation(summary = "책 삭제", description = "책 삭제 관리자만 가능")
-  @DeleteMapping("/delete/{bookId}")
+  @DeleteMapping("{bookId}")
   public ResponseEntity<String> deleteBook(@PathVariable Long bookId, HttpSession session) {
 
     User user = (User) session.getAttribute("user");
@@ -126,7 +126,7 @@ public class BookController {
   }
 
   @Operation(summary = "책 수정", description = "책 수정 관리자만 가능")
-  @PutMapping("/update/{bookId}")
+  @PutMapping("{bookId}")
   public ResponseEntity<String> updateBook(@PathVariable Long bookId, HttpSession session,
       @RequestBody UpdateBookReqDto req) {
     User user = (User) session.getAttribute("user");

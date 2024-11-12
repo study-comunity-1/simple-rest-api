@@ -67,7 +67,7 @@ public class ReviewController {
     }
   }
   @Operation(summary = "리뷰 삭제")
-  @DeleteMapping("/deleteReview/{reviewId}")
+  @DeleteMapping("/{reviewId}")
   public ResponseEntity<String> deleteReview(@PathVariable Long reviewId, HttpSession session) {
     User user = (User) session.getAttribute("user");
 
@@ -83,7 +83,7 @@ public class ReviewController {
     }
   }
   @Operation(summary = "리뷰 수정")
-  @PutMapping("/updateReview/{reviewId}")
+  @PutMapping("/{reviewId}")
   public ResponseEntity<String> updateReview(@PathVariable Long reviewId,
       @RequestBody UpdateReviewReqDto updateReviewReqDto, HttpSession session) {
     User user = (User) session.getAttribute("user");
@@ -102,7 +102,7 @@ public class ReviewController {
     }
   }
   @Operation(summary = "특정 책에 대한 리뷰 확인")
-  @GetMapping("/{bookId}")
+  @GetMapping("/books/{bookId}/reviews")
   public List<ReviewListRespDto> reviewList(@PathVariable Long bookId) {
     List<ReviewListRespDto> reviews = listReviewService.getReviewsForBook(bookId);
     return reviews;
