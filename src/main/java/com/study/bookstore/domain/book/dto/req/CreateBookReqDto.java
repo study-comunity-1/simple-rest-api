@@ -15,8 +15,7 @@ public record CreateBookReqDto(
     LocalDate publishedDate, // 출판 일시
     int page, // 페이지 수
     String description, // 책 소개
-    String isbn, // 책 코드
-    Long categoryId //카테고리 ID
+    String isbn// 책 코드
 ) {
 
   //book객체를 만드는 메서드
@@ -34,5 +33,4 @@ public record CreateBookReqDto(
         .category(category)
         .build();
   }
-
 }

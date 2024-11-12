@@ -1,6 +1,7 @@
 package com.study.bookstore.domain.book.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
 import com.study.bookstore.domain.category.entity.Category;
 import com.study.bookstore.domain.review.entity.Review;
@@ -72,12 +73,13 @@ public class Book extends BaseTimeEntity {
   @Comment("책 소개")
   private String description;
 
-  @Column(name = "isbn", nullable = false)
+  @Column(name = "isbn", nullable = false, unique = true)
   @Comment("책 코드")
   private String isbn;
 
   @ManyToOne //category_id라는 칼럼이 추가되어, Category와 연결될 수 있게 한다.
-  @JoinColumn(name = "category_id", insertable = false, updatable = false) // FK 설정
+  @JoinColumn(name = "category_id",  nullable = false) // FK 설정
+  @JsonIgnore // 순환 참조 방지
   private Category category; // 카테고리와 객체 자체와 연결되며, 이를 통해 Book 클래스에서 카테고리의 이름이나 설명 같은 속성에 바로 접근할 수 있게 함.
 
   @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

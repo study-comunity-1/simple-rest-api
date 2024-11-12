@@ -3,6 +3,8 @@ package com.study.bookstore.domain.book.controller;
 import com.study.bookstore.domain.book.dto.req.CreateBookReqDto;
 import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
 import com.study.bookstore.domain.book.dto.resp.GetBookRespDto;
+import com.study.bookstore.domain.book.entity.Book;
+import com.study.bookstore.domain.book.entity.repository.BookRepository;
 import com.study.bookstore.domain.book.service.CreateBookService;
 import com.study.bookstore.domain.book.service.GetBookListService;
 import com.study.bookstore.domain.book.service.InventoryService;
@@ -10,11 +12,15 @@ import com.study.bookstore.domain.book.service.SearchBookService;
 import com.study.bookstore.domain.book.service.UpdateBookService;
 import com.study.bookstore.domain.book.service.DeleteBookService;
 import com.study.bookstore.domain.book.service.GetBookDetailService;
+import com.study.bookstore.domain.category.entity.Category;
+import com.study.bookstore.domain.category.entity.repository.CategoryRepository;
 import com.study.bookstore.domain.user.entity.UserType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -47,6 +53,8 @@ public class BookController {
   private final GetBookDetailService GetBookDetailService;
   private final InventoryService inventoryService;
   private final SearchBookService searchBookService;
+  private final CategoryRepository categoryRepository;
+  private final BookRepository bookRepository;
 
 
   @Operation(summary = "책 추가", description = "책 추가 시 관리자만 가능")
@@ -70,8 +78,15 @@ public class BookController {
     }
     //관리자인 경우에는 책 추가 가능
     else {
-      createBookService.addBook(req, categoryId);
-      return ResponseEntity.ok().body("책 추가가 완료되었습니다.");
+
+      try {
+        // 서비스에서 책 추가 처리
+        createBookService.addBook(categoryId, req);
+        return ResponseEntity.ok().body("책 추가가 완료되었습니다.");
+      } catch (Exception e) {
+        // 예외 처리
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+      }
     }
   }
 
@@ -183,28 +198,27 @@ public class BookController {
   }
 
   @Operation(summary = "책 카테고리 검색 및 정렬 기능")
-  @GetMapping
-  public ResponseEntity<Page<GetBookRespDto>> searchBooks(
+  @GetMapping("/search")
+  public ResponseEntity<Map<String, Object>> getBooks(
       @RequestParam(required = false) Long categoryId,
-      @RequestParam(required = false, defaultValue = "title") String sort,
-      @RequestParam(required = false) String title,
-      @RequestParam(required = false) String author,
-      @RequestParam(defaultValue = "0") int pageNo, // 페이지 번호 기본값 0
-      @RequestParam(defaultValue = "10") int pageSize, // 페이지 크기 기본값 10
-      @RequestParam(defaultValue = "title") String sortBy, // 기본 정렬 기준은 제목
-      @RequestParam(defaultValue = "ASC") String direction // 기본 정렬 방향은 오름차순
+      @RequestParam(required = false) String search,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "title") String sort
   ) {
+    // Pageable 객체 생성 (페이지, 크기, 정렬)
+    Pageable pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
 
-    // Pageable 객체 생성 (PageRequest 사용)
-    Pageable pageable = PageRequest.of(pageNo, pageSize,
-        Sort.by(Sort.Direction.fromString(direction), sortBy));
+    // Service로 pageable 전달
+    Page<Book> books = searchBookService.getBooks(categoryId, search, pageable);
 
-    // 서비스에서 책 목록 가져오기
-    Page<GetBookRespDto> books = searchBookService.searchBooksBySort(categoryId, sort, title,
-        author, pageable);
+    // 필요한 데이터만 맵으로 반환
+    Map<String, Object> response = new HashMap<>();
+    response.put("books", books.getContent());  // 책 목록
+    response.put("currentPage", books.getNumber());  // 현재 페이지
+    response.put("totalItems", books.getTotalElements());  // 전체 아이템 수
+    response.put("totalPages", books.getTotalPages());  // 전체 페이지 수
 
-    return ResponseEntity.ok(books);
+    return ResponseEntity.ok(response);
   }
 }
-
-

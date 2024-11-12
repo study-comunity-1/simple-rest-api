@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +22,11 @@ public class SearchBookService {
 
   private final BookRepository bookRepository; // JPA Repository 사용
 
-  public Page<GetBookRespDto> searchBooksBySort(Long categoryId, String sort, String title,
-      String author, Pageable pageable) {
-
-    // JPA Repository에서 책 데이터를 가져옵니다.
-    Page<Book> books = bookRepository.findBooksByCategoryAndTitleAndAuthor(
-        categoryId, title, author, pageable);
-
-    // Page<Book>을 Page<GetBookRespDto>로 변환
-    return books.map(GetBookRespDto::of); // Book -> GetBookRespDto 변환
+  public Page<Book> getBooks(Long categoryId, String search, Pageable pageable) {
+    // categoryId와 search가 null일 경우 처리
+    if (categoryId == null && (search == null || search.isEmpty())) {
+      return bookRepository.findAll(pageable); // 둘 다 널일 경우 모든 책을 반환
+    }
+    return bookRepository.findBooks(categoryId, search, pageable);//널이 아니라면 검색 결과 반환
   }
 }

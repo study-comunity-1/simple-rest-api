@@ -6,6 +6,7 @@ import com.study.bookstore.domain.review.entity.repository.ReviewRepository;
 import com.study.bookstore.domain.user.dto.resp.UserReviewListRespDto;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.domain.user.entity.repository.UserRepository;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +21,13 @@ public class GetUserReviewService {
   private final UserRepository userRepository;
   private final ReviewRepository reviewRepository;
 
-  public Page<UserReviewListRespDto> getUserReview(Long userId, Pageable pageable) {
+  public Page<UserReviewListRespDto> getUserReview(HttpSession session, Pageable pageable) {
     //1.유저를 조회한다.
-    User user = userRepository.findById(userId)
-        .orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+    User user = (User) session.getAttribute("user");
+
+    if(user == null){
+      throw new IllegalArgumentException("로그인 해주세요.");
+    }
 
     //2.유저가 작성한 리뷰 목록을 페이지네이션으로 조회한다.
     Page<Review> reviewPage = reviewRepository.findByUser(user, pageable);
@@ -39,7 +43,6 @@ public class GetUserReviewService {
             review.getCreatedDate()
         )
     );
-
     //4.dto를 포함한 응답을 반환한다.
     return reviewListRespDtos;
   }
