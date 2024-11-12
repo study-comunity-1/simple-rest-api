@@ -33,9 +33,9 @@ public class Category extends BaseTimeEntity {
   @Column(nullable = false, unique = true)
   private String categoryName;
 
-  //카테고리가 1, 여러 책이 속할 수 있다. Book 클래스의 category 필드와 연결된다는 의미
-  @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE)
-  private List<Book> books = new ArrayList<>();// 해당 카테고리에 속하는 책 목록
+  // 카테고리와 책의 관계 설정 (Category : Book 1:N)
+  @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<Book> books = new ArrayList<>(); // 해당 카테고리에 속하는 책 목록
 
   public void setCategoryName(String categoryName){
     this.categoryName = categoryName;
