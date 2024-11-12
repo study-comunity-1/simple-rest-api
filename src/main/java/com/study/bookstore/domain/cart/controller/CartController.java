@@ -40,7 +40,7 @@ public class CartController {
   }
 
   @Operation(summary = "장바구니 조회", description = "장바구니에 담긴 상품들을 조회합니다.")
-  @GetMapping("/getCartList")
+  @GetMapping("/list")
   public ResponseEntity<List<GetCartListRespDto>> getCartList(HttpSession session) {
 
     return ResponseEntity.ok().body(getCartListService.getCartList(session));
