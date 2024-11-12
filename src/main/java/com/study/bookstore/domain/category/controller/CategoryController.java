@@ -46,11 +46,9 @@ public class CategoryController {
       createCategoryService.addCategory(req);
       return ResponseEntity.ok().body("카테고리  추가 완료");
     }
-
   }
-
   @Operation(summary = "카테고리 수정")
-  @PutMapping("/update/{categoryId}")
+  @PutMapping("/{categoryId}")
   public ResponseEntity<String> updateCategory(@PathVariable Long categoryId,
      @RequestParam String categoryName, HttpSession session) {
     User user = (User) session.getAttribute("user");
@@ -65,9 +63,8 @@ public class CategoryController {
       return ResponseEntity.ok().body("카테고리 수정 완료");
     }
   }
-
   @Operation(summary = "카테고리 삭제")
-  @DeleteMapping("/delete/{categoryId}")
+  @DeleteMapping("/{categoryId}")
   public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId, HttpSession session) {
     User user = (User) session.getAttribute("user");
     if (user == null) {
@@ -79,10 +76,8 @@ public class CategoryController {
     } else {
       deleteCategoryService.deleteCategory(categoryId);
       return ResponseEntity.ok().body("카테고리 삭제 완료");
-
     }
   }
-
 }
 
 
