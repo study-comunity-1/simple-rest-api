@@ -2,6 +2,7 @@ package com.study.bookstore.domain.book.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
 import com.study.bookstore.domain.category.entity.Category;
 import com.study.bookstore.domain.review.entity.Review;

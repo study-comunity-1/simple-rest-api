@@ -1,5 +1,6 @@
 package com.study.bookstore.domain.review.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.global.entity.BaseTimeEntity;

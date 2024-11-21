@@ -1,6 +1,7 @@
 package com.study.bookstore.domain.category.controller;
 
 import com.study.bookstore.domain.category.dto.req.CreateCategoryReqDto;
+import com.study.bookstore.domain.category.facade.CategoryFacade;
 import com.study.bookstore.domain.category.service.CreateCategoryService;
 import com.study.bookstore.domain.category.service.DeleteCategoryService;
 import com.study.bookstore.domain.category.service.UpdateCategoryService;
@@ -27,9 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class CategoryController {
 
-  private final CreateCategoryService createCategoryService;
-  private final UpdateCategoryService updateCategoryService;
-  private final DeleteCategoryService deleteCategoryService;
+  private final CategoryFacade categoryFacade;
 
   @Operation(summary = "카테고리 추가")
   @PostMapping
@@ -43,7 +42,7 @@ public class CategoryController {
     if (userType == null || userType == UserType.USER) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
     } else {
-      createCategoryService.addCategory(req);
+      categoryFacade.addCategory(req);
       return ResponseEntity.ok().body("카테고리  추가 완료");
     }
   }
@@ -59,7 +58,7 @@ public class CategoryController {
     if (userType == null || userType == UserType.USER) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
     } else {
-      updateCategoryService.updateCategory(categoryName, categoryId);
+      categoryFacade.updateCategory(categoryName, categoryId);
       return ResponseEntity.ok().body("카테고리 수정 완료");
     }
   }
@@ -74,7 +73,7 @@ public class CategoryController {
     if (userType == null || userType == UserType.USER) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
     } else {
-      deleteCategoryService.deleteCategory(categoryId);
+      categoryFacade.deleteCategory(categoryId);
       return ResponseEntity.ok().body("카테고리 삭제 완료");
     }
   }

@@ -8,6 +8,7 @@ import com.study.bookstore.domain.review.dto.req.UpdateReviewReqDto;
 import com.study.bookstore.domain.review.dto.resp.AllReviewListRespDto;
 import com.study.bookstore.domain.review.dto.resp.ReviewListRespDto;
 import com.study.bookstore.domain.review.entity.Review;
+import com.study.bookstore.domain.review.facade.ReviewFacade;
 import com.study.bookstore.domain.review.service.AllListReviewService;
 import com.study.bookstore.domain.review.service.CreateReviewService;
 import com.study.bookstore.domain.review.service.DeleteReviewService;
@@ -43,11 +44,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ReviewController {
 
-  private final CreateReviewService createReviewService;
-  private final DeleteReviewService deleteReviewService;
-  private final UpdateReviewService updateReviewService;
-  private final ListReviewService listReviewService;
-  private final AllListReviewService allListReviewService;
+  private final ReviewFacade reviewFacade;
 
   @Operation(summary = "리뷰 작성")
   @PostMapping
@@ -59,7 +56,7 @@ public class ReviewController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
     }
     try {
-      createReviewService.createReview(req, user);  // req와 user 전달
+      reviewFacade.createReview(req, user);  // req와 user 전달
       return ResponseEntity.ok("리뷰가 성공적으로 작성되었습니다.");
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -75,7 +72,7 @@ public class ReviewController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
     }
     try {
-      deleteReviewService.deleteReview(reviewId, user);
+      reviewFacade.deleteReview(reviewId, user);
       return ResponseEntity.ok("리뷰가 성공적으로 삭제되었습니다.");
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -85,14 +82,14 @@ public class ReviewController {
   @Operation(summary = "리뷰 수정")
   @PutMapping("/{reviewId}")
   public ResponseEntity<String> updateReview(@PathVariable Long reviewId,
-      @RequestBody UpdateReviewReqDto updateReviewReqDto, HttpSession session) {
+      @RequestBody UpdateReviewReqDto req, HttpSession session) {
     User user = (User) session.getAttribute("user");
     if (user == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
     }
     try {
       // DTO 객체와 로그인한 사용자 객체를 서비스 메서드에 넘김
-      updateReviewService.updateReview(reviewId, updateReviewReqDto, user);
+      reviewFacade.updateReview(reviewId, req, user);
 
       return ResponseEntity.ok("리뷰가 성공적으로 수정되었습니다.");
 
@@ -104,7 +101,7 @@ public class ReviewController {
   @Operation(summary = "특정 책에 대한 리뷰 확인")
   @GetMapping("/books/{bookId}/reviews")
   public List<ReviewListRespDto> reviewList(@PathVariable Long bookId) {
-    List<ReviewListRespDto> reviews = listReviewService.getReviewsForBook(bookId);
+    List<ReviewListRespDto> reviews = reviewFacade.getReviewsForBook(bookId);
     return reviews;
   }
   @Operation(summary = "전체 리뷰 확인")
@@ -119,7 +116,7 @@ public class ReviewController {
     Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.fromString(direction), sortBy));
 
     //서비스에서 리뷰 목록 가져오기
-    Page<AllReviewListRespDto>reviews = allListReviewService.getAllReviews(pageable);
+    Page<AllReviewListRespDto>reviews = reviewFacade.getAllReviews(pageable);
     return ResponseEntity.ok(reviews);
   }
 
