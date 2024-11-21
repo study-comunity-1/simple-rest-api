@@ -16,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @Component
 @RequiredArgsConstructor
 public class ReviewFacade {
@@ -36,14 +38,17 @@ public class ReviewFacade {
     deleteReviewService.deleteReview(reviewId, user);
   }
   //리뷰 수정
+
   public void updateReview(Long reviewId, UpdateReviewReqDto req, User user){
     updateReviewService.updateReview(reviewId, req, user);
   }
   //특정 책에 대한 리뷰 확인
+  @Transactional(readOnly = true)
   public List<ReviewListRespDto> getReviewsForBook(Long bookId){
     return listReviewService.getReviewsForBook(bookId);
   }
   //전체 리뷰 확인
+  @Transactional(readOnly = true)
   public Page<AllReviewListRespDto> getAllReviews(Pageable pageable){
    return allListReviewService.getAllReviews(pageable);
   }

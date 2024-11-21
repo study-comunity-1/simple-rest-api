@@ -5,6 +5,7 @@ import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
 import com.study.bookstore.domain.book.dto.resp.GetBookRespDto;
 import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.book.service.CreateBookService;
+import com.study.bookstore.domain.book.service.DeleteBookService;
 import com.study.bookstore.domain.book.service.GetBookListService;
 import com.study.bookstore.domain.book.service.InventoryService;
 import com.study.bookstore.domain.book.service.SearchBookService;
@@ -14,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional
 @Component
 @RequiredArgsConstructor
 public class BookFacade {
@@ -32,10 +35,12 @@ public class BookFacade {
     createBookService.addBook(categoryId, req);
   }
   //책 목록
+  @Transactional(readOnly = true)
   public List<GetBookRespDto> getBookList(int pageNumber, int pageSize){
     return getBookListService.getBookList(pageNumber, pageSize);
   }
   //책 상세 조회
+  @Transactional(readOnly = true)
   public GetBookRespDto getBookListDetail(Long bookId){
     return GetBookDetailService.getBookDetail(bookId);
   }
@@ -48,6 +53,7 @@ public class BookFacade {
     updateBookService.updateBook(req, bookId);
   }
   //책 재고 확인
+  @Transactional(readOnly = true)
   public int getBookInventory(Long bookId){
     return inventoryService.getInventory(bookId);
   }
@@ -60,6 +66,7 @@ public class BookFacade {
     return inventoryService.removeInventory(bookId, removeBookAmount);
   }
   //책 카테고리 검색 및 정렬 기능
+  @Transactional(readOnly = true)
   public Page<Book> searchBooks(Long categoryId, String search, Pageable pageable){
     return searchBookService.getBooks(categoryId, search, pageable);
   }
