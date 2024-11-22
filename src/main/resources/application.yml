@@ -4,6 +4,8 @@ spring:
     url: jdbc:mysql://localhost:3307/bookStore
     username: root
     password: 1q2w3e4r
+  application:
+    name: basic
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,6 +14,12 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.MySQL8Dialect
+  jwt:
+    expiration_time: 86400000
+    secret:
+      key: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
+server:
+  port: 8080
 
 #mybatis:
 #  mapper-locations: classpath:mapper/*.xml
