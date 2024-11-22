@@ -36,7 +36,7 @@ public class Order extends BaseTimeEntity {
   @Column(name = "order_id")
   private Long orderId;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   // 한 명의 유저는 여러개의 주문을 가질 수 있다.
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
