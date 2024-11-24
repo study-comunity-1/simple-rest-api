@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,9 +49,15 @@ public class CategoryController {
     UserType userType = user.getUserType();
     if (userType == null || userType == UserType.USER) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
-    } else {
+    }
+    try {
       categoryFacade.addCategory(req);
       return ResponseEntity.ok().body("카테고리  추가 완료");
+    }catch (Exception e){
+
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .header(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8")
+          .body(e.getMessage());
     }
   }
   @Operation(summary = "카테고리 수정")
