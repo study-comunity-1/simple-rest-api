@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
     ),
     servers = {
         @io.swagger.v3.oas.annotations.servers.Server(
-            url = "http://localhost:8080/",
+            url = "http://localhost:9090/",
             description = "local test"
         )
     }

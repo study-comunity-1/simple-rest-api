@@ -8,12 +8,14 @@ import com.study.bookstore.global.jwt.util.JwtUtil;
 import com.study.bookstore.web.api.member.dto.request.LoginMemberRequestDto;
 import com.study.bookstore.web.api.member.dto.request.MemberCreateRequestDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class MemberFacade {
@@ -52,5 +54,10 @@ public class MemberFacade {
 
     CustomUserInfoDto customUserInfoDto = CustomUserInfoDto.of(member);
     return jwtUtil.createAccessToken(customUserInfoDto);
+  }
+
+  public void logout(String authorization) {
+
+    log.info("dddddddddddddddddddddddddddd");
   }
 }

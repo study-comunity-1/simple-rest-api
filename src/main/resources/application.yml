@@ -19,7 +19,7 @@ spring:
     secret:
       key: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
 server:
-  port: 8080
+  port: 9090
 
 #mybatis:
 #  mapper-locations: classpath:mapper/*.xml

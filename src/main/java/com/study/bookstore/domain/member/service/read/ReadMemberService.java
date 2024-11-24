@@ -12,6 +12,6 @@ public class ReadMemberService {
   private final MemberRepository memberRepository;
 
   public Member findMemberByEmail(String email) {
-    return memberRepository.findMemberByEmail(email);
+    return memberRepository.findByEmail(email);
   }
 }
