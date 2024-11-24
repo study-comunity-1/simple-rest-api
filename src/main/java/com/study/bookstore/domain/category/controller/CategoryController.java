@@ -54,7 +54,6 @@ public class CategoryController {
       categoryFacade.addCategory(req);
       return ResponseEntity.ok().body("카테고리  추가 완료");
     }catch (Exception e){
-
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .header(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8")
           .body(e.getMessage());
@@ -71,9 +70,13 @@ public class CategoryController {
     UserType userType = user.getUserType();
     if (userType == null || userType == UserType.USER) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
-    } else {
+    } try {
       categoryFacade.updateCategory(categoryName, categoryId);
       return ResponseEntity.ok().body("카테고리 수정 완료");
+    }catch (Exception e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .header(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8")
+          .body(e.getMessage());
     }
   }
   @Operation(summary = "카테고리 삭제")
