@@ -10,4 +10,6 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
   Optional<Category> findById(Long id);
   //카테고리 이름 중복 체크
   boolean existsByCategoryName(String categoryName);
+  //다른 카테고리 중에 이름 중복 여부 확인(수정하려는 카테고리를 제외하고 다른 카테고리 이름만 중복인지 확인)
+  boolean existsByCategoryNameAndCategoryIdNot(String CategoryName, Long categoryId);
 }
