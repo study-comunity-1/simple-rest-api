@@ -1,10 +1,12 @@
 package com.study.bookstore.domain.category.controller;
 
 import com.study.bookstore.domain.category.dto.req.CreateCategoryReqDto;
+import com.study.bookstore.domain.category.dto.resp.GetAllCategoryListRespDto;
 import com.study.bookstore.domain.category.dto.resp.GetCategoryListRespDto;
 import com.study.bookstore.domain.category.facade.CategoryFacade;
 import com.study.bookstore.domain.category.service.CreateCategoryService;
 import com.study.bookstore.domain.category.service.DeleteCategoryService;
+import com.study.bookstore.domain.category.service.GetAllCategoryService;
 import com.study.bookstore.domain.category.service.GetDetailCategoryService;
 import com.study.bookstore.domain.category.service.UpdateCategoryService;
 import com.study.bookstore.domain.user.entity.User;
@@ -33,6 +35,7 @@ public class CategoryController {
 
   private final CategoryFacade categoryFacade;
   private final GetDetailCategoryService getDetailCategoryService;
+  private final GetAllCategoryService getAllCategoryService;
 
   @Operation(summary = "카테고리 추가")
   @PostMapping
@@ -98,6 +101,26 @@ public class CategoryController {
       return ResponseEntity.ok(catetoryDetail);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+  }
+  @Operation(summary = "카테고리 전체 목록 조회")
+  @GetMapping("/all")
+  public ResponseEntity<?> getAllCategories(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size, HttpSession session){
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요.");
+    }
+    UserType userType = user.getUserType();
+    if (userType == null || userType == UserType.USER){
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+    }
+    try {
+      //전체 카테고리 목록 가져오기
+      GetAllCategoryListRespDto categoryList = getAllCategoryService.getCategories(page, size);
+      //성공
+      return ResponseEntity.ok(categoryList);
+    } catch (Exception e){
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("에러가 발생하였습니다.");
     }
   }
 }
