@@ -5,6 +5,7 @@ import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
 import com.study.bookstore.domain.book.dto.resp.GetBookRespDto;
 import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.book.entity.repository.BookRepository;
+import com.study.bookstore.domain.book.facade.BookFacade;
 import com.study.bookstore.domain.book.service.CreateBookService;
 import com.study.bookstore.domain.book.service.GetBookListService;
 import com.study.bookstore.domain.book.service.InventoryService;
@@ -46,16 +47,7 @@ import com.study.bookstore.domain.user.entity.User;
 @RequiredArgsConstructor
 public class BookController {
 
-  private final CreateBookService createBookService;
-  private final GetBookListService getBookListService;
-  private final DeleteBookService DeleteBookService;
-  private final UpdateBookService updateBookService;
-  private final GetBookDetailService GetBookDetailService;
-  private final InventoryService inventoryService;
-  private final SearchBookService searchBookService;
-  private final CategoryRepository categoryRepository;
-  private final BookRepository bookRepository;
-
+  private final BookFacade bookFacade;
 
   @Operation(summary = "책 추가", description = "책 추가 시 관리자만 가능")
   @PostMapping("/categories/{categoryId}")
@@ -64,24 +56,20 @@ public class BookController {
 
     //유저 객체에 세션정보를 받아온다.
     User user = (User) session.getAttribute("user");
-
     //유저가 널 값이거나 세션에 로그인 정보가 없는 경우
     if (user == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요.");
     }
     //1. 유저의 타입을 확인
     UserType userType = user.getUserType();
-
     //유저가 고객인 경우에는 권한이 없습니다.
     if (userType == null || userType == UserType.USER) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
     }
     //관리자인 경우에는 책 추가 가능
     else {
-
       try {
-        // 서비스에서 책 추가 처리
-        createBookService.addBook(categoryId, req);
+        bookFacade.createBook(categoryId, req);
         return ResponseEntity.ok().body("책 추가가 완료되었습니다.");
       } catch (Exception e) {
         // 예외 처리
@@ -89,23 +77,20 @@ public class BookController {
       }
     }
   }
-
   @Operation(summary = "책 목록", description = "책 목록을 확인합니다.")
   @GetMapping
   public ResponseEntity<List<GetBookRespDto>> getBookList(
       @RequestParam(name = "pageNumber", defaultValue = "1") int pageNumber,
       @RequestParam(name = "pageSize", defaultValue = "10") int pageSize) {
-    List<GetBookRespDto> bookList = getBookListService.getBookList(pageNumber, pageSize);
+    List<GetBookRespDto> bookList = bookFacade.getBookList(pageNumber, pageSize);
     return ResponseEntity.ok(bookList);
   }
-
   @Operation(summary = "책 상세 조회", description = "책의 상세 정보를 확인합니다.")
   @GetMapping("{bookId}")
   public ResponseEntity<GetBookRespDto> getBookDetail(@PathVariable Long bookId) {
-    GetBookRespDto bookDetail = GetBookDetailService.getBookDetail(bookId);
+    GetBookRespDto bookDetail = bookFacade.getBookListDetail(bookId);
     return ResponseEntity.ok(bookDetail);
   }
-
   @Operation(summary = "책 삭제", description = "책 삭제 관리자만 가능")
   @DeleteMapping("{bookId}")
   public ResponseEntity<String> deleteBook(@PathVariable Long bookId, HttpSession session) {
@@ -114,13 +99,11 @@ public class BookController {
     if (user == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
     }
-
     UserType userType = user.getUserType();
-
     if (userType == null || userType.equals(UserType.USER)) { // UserType은 enum으로 가정
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제 권한이 없습니다.");
     } else {
-      DeleteBookService.deleteBook(bookId);
+      bookFacade.deleteBook(bookId);
       return ResponseEntity.ok().body("책 삭제가 완료되었습니다.");
     }
   }
@@ -133,7 +116,6 @@ public class BookController {
     //로그인 여부 확인
     if (user == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요.");
-
     }
     //유저 권한 확인
     UserType userType = user.getUserType();
@@ -141,12 +123,10 @@ public class BookController {
     if (userType == null || userType.equals(UserType.USER)) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("수정 권한이 없습니다.");
     } else {
-      updateBookService.updateBook(req, bookId);
+      bookFacade.updateBook(req, bookId);
       return ResponseEntity.ok().body("책 수정이 완료 되었습니다.");
     }
-
   }
-
   @Operation(summary = "책 재고 확인", description = "단순 재고 확인")
   @GetMapping("/inventory/{bookId}")
   public ResponseEntity<Integer> getBookInventory(@PathVariable Long bookId, HttpSession session) {
@@ -159,10 +139,9 @@ public class BookController {
     if (userType == null || userType.equals(UserType.USER)) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(0);
     }
-    int stock = inventoryService.getInventory(bookId);
+    int stock = bookFacade.getBookInventory(bookId);
     return ResponseEntity.ok(stock);
   }
-
   @Operation(summary = "책 재고 추가")
   @PostMapping("/inventory/add/{bookId}")
   public ResponseEntity<String> addBookInventory(@PathVariable Long bookId, HttpSession session,
@@ -176,7 +155,7 @@ public class BookController {
     if (userType == null || userType.equals(UserType.USER)) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("확인 권한이 없습니다.");
     }
-    int stock = inventoryService.addInventory(bookId, addBookAmount);
+    int stock = bookFacade.addBookInventory(bookId, addBookAmount);
     return ResponseEntity.ok("재고가 추가되었습니다.");
   }
 
@@ -193,7 +172,7 @@ public class BookController {
     if (userType == null || userType.equals(UserType.USER)) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("확인 권한이 없습니다.");
     }
-    int stock = inventoryService.removeInventory(bookId, removeBookAmount);
+    int stock = bookFacade.removeBookInventory(bookId, removeBookAmount);
     return ResponseEntity.ok("재고가 삭제 되었습니다.");
   }
 
@@ -208,10 +187,8 @@ public class BookController {
   ) {
     // Pageable 객체 생성 (페이지, 크기, 정렬)
     Pageable pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
-
     // Service로 pageable 전달
-    Page<Book> books = searchBookService.getBooks(categoryId, search, pageable);
-
+    Page<Book> books = bookFacade.searchBooks(categoryId, search, pageable);
     // 필요한 데이터만 맵으로 반환
     Map<String, Object> response = new HashMap<>();
     response.put("books", books.getContent());  // 책 목록

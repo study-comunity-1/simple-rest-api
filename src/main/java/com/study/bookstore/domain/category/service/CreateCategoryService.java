@@ -14,10 +14,10 @@ public class CreateCategoryService {
 
   private final CategoryRepository categoryRepository;
 
-  public Category addCategory(CreateCategoryReqDto req) {
+  public void addCategory(CreateCategoryReqDto req) {
 
     Category category = req.of();
-    return categoryRepository.save(category);
+    categoryRepository.save(category);
 
   }
 
