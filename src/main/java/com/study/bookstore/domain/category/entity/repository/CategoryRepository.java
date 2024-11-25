@@ -2,6 +2,8 @@ package com.study.bookstore.domain.category.entity.repository;
 
 import com.study.bookstore.domain.category.entity.Category;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
@@ -12,4 +14,9 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
   boolean existsByCategoryName(String categoryName);
   //다른 카테고리 중에 이름 중복 여부 확인(수정하려는 카테고리를 제외하고 다른 카테고리 이름만 중복인지 확인)
   boolean existsByCategoryNameAndCategoryIdNot(String CategoryName, Long categoryId);
+  Category findByCategoryName(String CategoryName);
+  Page<Category> findAll(Pageable pageable);
+
+
+
 }
