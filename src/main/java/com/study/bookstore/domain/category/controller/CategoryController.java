@@ -4,11 +4,6 @@ import com.study.bookstore.domain.category.dto.req.CreateCategoryReqDto;
 import com.study.bookstore.domain.category.dto.resp.GetAllCategoryListRespDto;
 import com.study.bookstore.domain.category.dto.resp.GetCategoryListRespDto;
 import com.study.bookstore.domain.category.facade.CategoryFacade;
-import com.study.bookstore.domain.category.service.CreateCategoryService;
-import com.study.bookstore.domain.category.service.DeleteCategoryService;
-import com.study.bookstore.domain.category.service.GetAllCategoryService;
-import com.study.bookstore.domain.category.service.GetDetailCategoryService;
-import com.study.bookstore.domain.category.service.UpdateCategoryService;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.domain.user.entity.UserType;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,8 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryController {
 
   private final CategoryFacade categoryFacade;
-  private final GetDetailCategoryService getDetailCategoryService;
-  private final GetAllCategoryService getAllCategoryService;
 
   @Operation(summary = "카테고리 추가")
   @PostMapping
@@ -53,7 +46,7 @@ public class CategoryController {
     try {
       categoryFacade.addCategory(req);
       return ResponseEntity.ok().body("카테고리  추가 완료");
-    }catch (Exception e){
+    }catch (IllegalArgumentException e){
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .header(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8")
           .body(e.getMessage());
@@ -89,9 +82,11 @@ public class CategoryController {
     UserType userType = user.getUserType();
     if (userType == null || userType == UserType.USER) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
-    } else {
+    } try {
       categoryFacade.deleteCategory(categoryId);
       return ResponseEntity.ok().body("카테고리 삭제 완료");
+    }catch (Exception e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
   @Operation(summary = "카테고리 상세 조회")
@@ -106,8 +101,7 @@ public class CategoryController {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
     }
     try {
-      GetCategoryListRespDto catetoryDetail = getDetailCategoryService.getCategoryDetail(
-          categoryId);
+      GetCategoryListRespDto catetoryDetail = categoryFacade.getCategoryDetail(categoryId);
       return ResponseEntity.ok(catetoryDetail);
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -126,11 +120,11 @@ public class CategoryController {
     }
     try {
       //전체 카테고리 목록 가져오기
-      GetAllCategoryListRespDto categoryList = getAllCategoryService.getCategories(page, size);
+      GetAllCategoryListRespDto categoryList = categoryFacade.getCategories(page, size);
       //성공
       return ResponseEntity.ok(categoryList);
     } catch (Exception e){
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("에러가 발생하였습니다.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
 }
