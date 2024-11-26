@@ -7,6 +7,7 @@ import com.study.bookstore.domain.member.service.read.ReadMemberService;
 import com.study.bookstore.global.jwt.util.JwtUtil;
 import com.study.bookstore.web.api.member.dto.request.LoginMemberRequestDto;
 import com.study.bookstore.web.api.member.dto.request.MemberCreateRequestDto;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -54,10 +55,5 @@ public class MemberFacade {
 
     CustomUserInfoDto customUserInfoDto = CustomUserInfoDto.of(member);
     return jwtUtil.createAccessToken(customUserInfoDto);
-  }
-
-  public void logout(String authorization) {
-
-    log.info("dddddddddddddddddddddddddddd");
   }
 }

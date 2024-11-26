@@ -9,15 +9,17 @@ public record CustomUserInfoDto(
     Long memberId,
     String email,
     String password,
-    Role role
+    Role role,
+    String jti
 ) {
 
-  public static CustomUserInfoDto of(Member member) {
+  public static CustomUserInfoDto of(Member member, String jti) {
     return CustomUserInfoDto.builder()
         .memberId(member.getId())
         .email(member.getEmail())
         .password(member.getPassword())
         .role(member.getRole())
+        .jti(jti)
         .build();
   }
 }

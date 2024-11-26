@@ -3,6 +3,7 @@ package com.study.bookstore.global.security.member.service;
 import com.study.bookstore.domain.member.entity.Member;
 import com.study.bookstore.domain.member.entity.repository.MemberRepository;
 import com.study.bookstore.domain.member.service.dto.CustomUserInfoDto;
+import com.study.bookstore.global.jwt.util.JwtUtil;
 import com.study.bookstore.global.security.member.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomUserDetailsService implements UserDetailsService {
 
   private final MemberRepository memberRepository;
+  private final JwtUtil jwtUtil;
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -26,6 +28,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     if (member == null) {
       throw new UsernameNotFoundException("존재하지 않는 유저입니다.");
     }
+
+    String jti = jwtUtil.getJti();
 
     CustomUserInfoDto customUserInfoDto = CustomUserInfoDto.of(member);
     return new CustomUserDetails(customUserInfoDto);
