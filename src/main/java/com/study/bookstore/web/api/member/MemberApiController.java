@@ -6,12 +6,16 @@ import com.study.bookstore.global.jwt.util.JwtUtil;
 import com.study.bookstore.global.security.member.CustomUserDetails;
 import com.study.bookstore.web.api.member.dto.request.LoginMemberRequestDto;
 import com.study.bookstore.web.api.member.dto.request.MemberCreateRequestDto;
+import io.jsonwebtoken.Claims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -49,40 +53,33 @@ public class MemberApiController {
 
   @Operation(summary = "로그아웃", security = @SecurityRequirement(name = "bearerAuth"))
   @PostMapping("/logout")
-  public ResponseEntity<?> logoutMember(Authentication authentication) {
+  public ResponseEntity<?> logoutMember(Authentication authentication, HttpServletRequest request) {
     if (authentication == null) {
-      return ResponseEntity.badRequest().body("인증 실패");
+      return ResponseEntity.badRequest().body("인증 실패 : authentication is Null");
     }
 
-    log.info("** authentication : {} **", authentication);
+    if (request.getHeader("Authorization") == null ||
+        !request.getHeader("Authorization").startsWith("Bearer ")) {
+      return ResponseEntity.badRequest().body("인증 실패 : Authorization 헤더가 없거나 형식이 올바르지 않습니다.");
+    }
 
-    CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-    log.info("** userDetails : {} **", userDetails);
-
-    String jti = userDetails.getJti();
-    /*
     String name = authentication.getName();
     log.info("** 로그아웃 요청한 사용자 : {} **", name);
 
-    // authentication에서 jwt 토큰을 추출
-    String jwtToken = jwtUtil.getJwtFromAuth(authentication);
-    if (jwtToken == null) {
-      return ResponseEntity.badRequest().body("jwtToken Null");
-    }
-    if (!jwtUtil.validateToken(jwtToken)) {
-      return ResponseEntity.badRequest().body("유효하지 않은 토큰");
-    }
+    String token = request.getHeader("Authorization").substring(7);
+    log.info("** token : {} **", token);
 
-    String jti = jwtUtil.parseClaims(jwtToken).getId();
-    LocalDateTime expTime = jwtUtil.parseClaims(jwtToken)
-        .getExpiration()
+    Claims claims = jwtUtil.parseClaims(token);
+
+    LocalDateTime expTime = claims.getExpiration()
         .toInstant()
-        .atZone(ZonedDateTime.now().getZone())
+        .atZone(ZoneId.systemDefault())
         .toLocalDateTime();
-    */
+    log.info("** expTime : {} **", expTime);
 
-    //tokenBlacklistService.createTokenBlacklist(jti, expTime);
+    tokenBlacklistService.createTokenBlacklist(token, expTime);
 
     return ResponseEntity.ok().body("로그아웃 성공");
   }
+
 }

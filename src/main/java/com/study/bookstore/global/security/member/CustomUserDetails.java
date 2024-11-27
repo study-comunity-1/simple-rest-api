@@ -61,7 +61,4 @@ public class CustomUserDetails implements UserDetails {
     return true;
   }
 
-  public String getJti() {
-    return member.jti();
-  }
 }

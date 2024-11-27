@@ -29,8 +29,6 @@ public class CustomUserDetailsService implements UserDetailsService {
       throw new UsernameNotFoundException("존재하지 않는 유저입니다.");
     }
 
-    String jti = jwtUtil.getJti();
-
     CustomUserInfoDto customUserInfoDto = CustomUserInfoDto.of(member);
     return new CustomUserDetails(customUserInfoDto);
   }

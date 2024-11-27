@@ -19,16 +19,16 @@ public class TokenBlacklistService {
   private final TokenBlacklistRepository tokenBlacklistRepository;
   private final JwtUtil jwtUtil;
 
-  public void createTokenBlacklist(String jti, LocalDateTime expTime) {
+  public void createTokenBlacklist(String token, LocalDateTime expTime) {
   // 로그아웃 요청시 블랙리스트 테이블에 토큰을 추가하는 메서드
 
-    TokenBlacklist tokenBlacklist = new TokenBlacklist(jti, expTime);
+    TokenBlacklist tokenBlacklist = new TokenBlacklist(token, expTime);
     tokenBlacklistRepository.save(tokenBlacklist);
   }
 
-  public boolean isBlacklisted(String jti) {
+  public boolean isBlacklisted(String token) {
   // 해당 토큰이 블랙리스트에 포함되어있는지 확인하는 메서드
   // 포함되어있다면 => true => 로그아웃 요청한 토큰
-    return tokenBlacklistRepository.existsByTokenId(jti);
+    return tokenBlacklistRepository.existsByTokenId(token);
   }
 }

@@ -11,6 +11,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.SimpleTimeZone;
 import java.util.UUID;
@@ -41,17 +42,12 @@ public class JwtUtil {
 
   public String createToken(CustomUserInfoDto member, long expireTime) {
     Claims claims = Jwts.claims();
-
-    String jti = UUID.randomUUID().toString();
-
     claims.put("memberId", member.memberId());
     claims.put("email", member.email());
     claims.put("role", member.role());
-    claims.put("jti", jti);
-    // jti : 토큰을 식별할 수 있는 고유 id
 
     ZonedDateTime now = ZonedDateTime.now();
-    ZonedDateTime tokenValidity = now.plusSeconds(expireTime);
+    ZonedDateTime tokenValidity = now.plus(expireTime, ChronoUnit.MILLIS);
 
     return Jwts.builder()
         .setClaims(claims)
@@ -65,10 +61,6 @@ public class JwtUtil {
     return parseClaims(token).get("email", String.class);
     // parseClaims(token) : token을 파싱하여 내용(payload)를 가져옴
     // .get("email", String.class) : payload중에서도 email에 해당하는 값을 String 타입으로 가져옴
-  }
-
-  public String getJti(String token) {
-    return parseClaims(token).getId();
   }
 
   public boolean validateToken(String token) {
@@ -111,19 +103,4 @@ public class JwtUtil {
     }
   }
 
-  public String getJwtFromAuth(Authentication authentication) {
-    if (authentication != null) {
-      log.info("** authentication != null **");
-
-      log.info("** {} **", authentication.getCredentials());
-//      Object credentials = authentication.getCredentials();
-//      log.info("** credentials type: {} **", credentials.getClass().getName());
-//      if (credentials instanceof String) {
-//        log.info("** credentials instanceof String **");
-//        return (String) credentials;
-//      }
-    }
-
-    return null;
-  }
 }
