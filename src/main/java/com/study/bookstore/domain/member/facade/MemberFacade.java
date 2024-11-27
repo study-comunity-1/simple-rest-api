@@ -7,13 +7,16 @@ import com.study.bookstore.domain.member.service.read.ReadMemberService;
 import com.study.bookstore.global.jwt.util.JwtUtil;
 import com.study.bookstore.web.api.member.dto.request.LoginMemberRequestDto;
 import com.study.bookstore.web.api.member.dto.request.MemberCreateRequestDto;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class MemberFacade {
