@@ -78,14 +78,31 @@ public class Book extends BaseTimeEntity {
   @Comment("책 코드")
   private String isbn;
 
-  @ManyToOne(cascade = CascadeType.ALL) // 카테고리가 삭제될 때 책도 삭제됨 category_id라는 칼럼이 추가되어, Category와 연결될 수 있게 한다.
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "category_id",  nullable = false) // FK 설정
   @JsonIgnore // 순환 참조 방지
   private Category category; // 카테고리와 객체 자체와 연결되며, 이를 통해 Book 클래스에서 카테고리의 이름이나 설명 같은 속성에 바로 접근할 수 있게 함.
 
   // 리뷰와의 관계 설정 (책 삭제 시 리뷰도 함께 삭제)
-  @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<Review> reviews;// 하나의 책에 여러 개의 리뷰가 연결됨
+  @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+  private List<Review> reviews;
+
+  //논리적 삭제 상태를 추가
+  @Builder.Default
+  @Column(name = "is_deleted", nullable = false)
+  private boolean isDeleted = false;
+
+  //책을 논리적으로 삭제하는 메서드
+  public void markAsDeleted(){
+    if(this.isDeleted){
+      throw new IllegalStateException("이미 삭제된 책입니다.");
+    }
+    this.isDeleted = true;
+  }
+  //책 상태를 삭제됨으로 변경하는 메서드
+  public void markAsRestored(){
+    this.isDeleted = false;
+  }
 
   public void setStock(int stock) {
     this.stock = stock; // stock 값을 설정하는 메서드
