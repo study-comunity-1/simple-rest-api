@@ -1,15 +1,10 @@
 package com.study.bookstore.domain.cart.controller;
 
-import com.study.bookstore.domain.book.dto.resp.GetBookRespDto;
-import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.cart.dto.resp.GetCartListRespDto;
-import com.study.bookstore.domain.cart.service.AddToCartService;
-import com.study.bookstore.domain.cart.service.GetCartListService;
-import com.study.bookstore.domain.user.entity.User;
+import com.study.bookstore.domain.cart.facade.CartFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +20,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class CartController {
 
-  private final AddToCartService addToCartService;
-  private final GetCartListService getCartListService;
+  private final CartFacade cartFacade;
 
   @Operation(summary = "장바구니 생성", description = "해당 ID의 책을 장바구니에 추가합니다.")
   @PostMapping
   public ResponseEntity<String> createCart(@RequestParam Long bookId, HttpSession session) {
     try {
-      addToCartService.addToCart(bookId, session);
+      cartFacade.addToCart(bookId, session);
       return ResponseEntity.ok().body("장바구니에 추가되었습니다.");
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
@@ -43,6 +37,6 @@ public class CartController {
   @GetMapping("/list")
   public ResponseEntity<List<GetCartListRespDto>> getCartList(HttpSession session) {
 
-    return ResponseEntity.ok().body(getCartListService.getCartList(session));
+    return ResponseEntity.ok().body(cartFacade.getCartList(session));
   }
 }

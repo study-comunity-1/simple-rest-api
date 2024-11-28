@@ -1,22 +1,43 @@
-package com.study.bookstore.domain.cart.service;
+package com.study.bookstore.domain.cart.facade;
 
 import com.study.bookstore.domain.book.entity.Book;
-import com.study.bookstore.domain.book.entity.repository.BookRepository;
+import com.study.bookstore.domain.book.service.ReadBookService;
 import com.study.bookstore.domain.cart.dto.resp.GetCartListRespDto;
 import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Transactional
-@Service
+@Component
 @RequiredArgsConstructor
-public class GetCartListService {
+public class CartFacade {
 
-  private final BookRepository bookRepository;
+  private final ReadBookService readBookService;
+
+  public void addToCart(Long bookId, HttpSession session) {
+    try {
+      Book book = readBookService.readBook(bookId);
+
+      Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
+
+      if (cart == null) {
+        cart = new HashMap<>();
+        session.setAttribute("cart", cart);
+      }
+
+      cart.put(bookId, cart.getOrDefault(bookId, 0) + 1);
+    } catch (NoSuchElementException e) {
+      throw new NoSuchElementException("존재하지 않는 책입니다.");
+    }
+  }
 
   public List<GetCartListRespDto> getCartList(HttpSession session) {
     Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
@@ -31,19 +52,17 @@ public class GetCartListService {
     for (Map.Entry<Long, Integer> entry : cart.entrySet()) {
       Long bookId = entry.getKey();
       int quantity = entry.getValue();
-      Book book = bookRepository.findById(bookId).orElse(null);
+      Book book = readBookService.readBook(bookId);
 
       if (book != null) {
         totalQuantity += quantity;
         getCartList.add(new GetCartListRespDto(book.getTitle(), quantity, 0));
-        // 총 수량은 제일 마지막에 알 수 있기때문에 임시로 0을 넣음
       }
     }
 
-    // 반복문이 끝난 후 나온 총 수량의 값을 다시 넣어줌
     for (int i = 0; i < getCartList.size(); i++) {
       getCartList.set(i, new GetCartListRespDto(
-          getCartList.get(i).title(), // title, quantity는 위의 반복문에서 넣었던 값 그대로 사용
+          getCartList.get(i).title(),
           getCartList.get(i).quantity(),
           totalQuantity));
     }
