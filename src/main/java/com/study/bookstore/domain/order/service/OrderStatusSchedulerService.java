@@ -19,7 +19,7 @@ public class OrderStatusSchedulerService {
 
   private final OrderRepository orderRepository;
 
-  @Scheduled(cron = "0 0 0 * * *")
+  @Scheduled(cron = "0 */2 * * * *")
   // 크론 : 초 분 시 일 월 요일 (cron = "0 0 0 * * *") => 매일 자정에 실행
   // @Scheduled(cron = "0 */2 * * * *")
   // 잘 작동하는지 확인하기위해 2분마다 상태가 변경되도록 함
