@@ -40,33 +40,44 @@ public class CartFacade {
   }
 
   public List<GetCartListRespDto> getCartList(HttpSession session) {
-    Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
+    try {
+      Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
 
-    List<GetCartListRespDto> getCartList = new ArrayList<>();
-    int totalQuantity = 0;
+      List<GetCartListRespDto> getCartList = new ArrayList<>();
+      int totalQuantity = 0;
 
-    if (cart == null) {
-      return getCartList;
-    }
-
-    for (Map.Entry<Long, Integer> entry : cart.entrySet()) {
-      Long bookId = entry.getKey();
-      int quantity = entry.getValue();
-      Book book = readBookService.readBook(bookId);
-
-      if (book != null) {
-        totalQuantity += quantity;
-        getCartList.add(new GetCartListRespDto(book.getTitle(), quantity, 0));
+      if (cart == null) {
+        return getCartList;
       }
-    }
 
-    for (int i = 0; i < getCartList.size(); i++) {
-      getCartList.set(i, new GetCartListRespDto(
-          getCartList.get(i).title(),
-          getCartList.get(i).quantity(),
-          totalQuantity));
-    }
+      for (Map.Entry<Long, Integer> entry : cart.entrySet()) {
+        Long bookId = entry.getKey();
+        int quantity = entry.getValue();
+        Book book = readBookService.readBook(bookId);
 
-    return getCartList;
+        if (book != null) {
+          totalQuantity += quantity;
+          getCartList.add(new GetCartListRespDto(book.getTitle(), quantity, 0));
+        }
+      }
+
+      for (int i = 0; i < getCartList.size(); i++) {
+        getCartList.set(i, new GetCartListRespDto(
+            getCartList.get(i).title(),
+            getCartList.get(i).quantity(),
+            totalQuantity));
+      }
+
+      return getCartList;
+    } catch (ClassCastException e) {
+      log.error("** cart의 타입이 맞지 않음 : {} **", e.getMessage());
+      return new ArrayList<>();
+    } catch (NullPointerException e) {
+      log.error("** book is Null : {} **", e.getMessage());
+      return new ArrayList<>();
+    } catch (Exception e) {
+      log.error("** error : {} **", e.getMessage());
+      return new ArrayList<>();
+    }
   }
 }
