@@ -7,8 +7,10 @@ import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.book.service.CreateBookService;
 import com.study.bookstore.domain.book.service.GetBookListService;
 import com.study.bookstore.domain.book.service.InventoryService;
+import com.study.bookstore.domain.book.service.ReadBookService;
 import com.study.bookstore.domain.book.service.SearchBookService;
 import com.study.bookstore.domain.book.service.UpdateBookService;
+import com.study.bookstore.domain.book.service.UpdateStockService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,6 +28,8 @@ public class BookFacade {
   private final com.study.bookstore.domain.book.service.GetBookDetailService GetBookDetailService;
   private final InventoryService inventoryService;
   private final SearchBookService searchBookService;
+
+  private final ReadBookService readBookService;
 
   //책 추가
   public void createBook(Long categoryId, CreateBookReqDto req){
@@ -49,15 +53,21 @@ public class BookFacade {
   }
   //책 재고 확인
   public int getBookInventory(Long bookId){
+    Book book = readBookService.findBookById(bookId);
+    readBookService.vailidateBookNotDeleted(book);
     return inventoryService.getInventory(bookId);
   }
   //책 재고 추가
   public int addBookInventory(Long bookId, int addBookAmount){
-    return inventoryService.addInventory(bookId, addBookAmount);
+    Book book= readBookService.findBookById(bookId);
+    readBookService.vailidateBookNotDeleted(book);
+    return inventoryService.addInventory(book, addBookAmount);
   }
   //책 재고 삭제
   public int removeBookInventory(Long bookId, int removeBookAmount){
-    return inventoryService.removeInventory(bookId, removeBookAmount);
+    Book book = readBookService.findBookById(bookId);
+    readBookService.vailidateBookNotDeleted(book);
+    return inventoryService.removeInventory(book, removeBookAmount);
   }
   //책 카테고리 검색 및 정렬 기능
   public Page<Book> searchBooks(Long categoryId, String search, Pageable pageable){

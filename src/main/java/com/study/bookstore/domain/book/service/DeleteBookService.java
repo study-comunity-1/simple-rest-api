@@ -15,7 +15,7 @@ public class DeleteBookService {
   private final BookRepository bookRepository;
 
   //책 아이디를 받아서 책 삭제
-  public String deleteBook(Long bookId) {
+  public void deleteBook(Long bookId) {
 
     //책 찾기
     Book book = bookRepository.findById(bookId)
@@ -28,8 +28,5 @@ public class DeleteBookService {
     //논리적 삭제 처리
     book.markAsDeleted(); //idDeleted를 true로 설정
     bookRepository.save(book);//저장
-
-    return "책이 삭제되었습니당";
   }
-
 }
