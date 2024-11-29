@@ -20,7 +20,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
   // 전체 책 목록을 페이징 처리하여 가져오는 메서드
   Page<Book> findAll(Pageable pageable);
 
-  // categoryId와 search 조건으로 책을 검색하는 메서드
+ // categoryId와 search 조건으로 책을 검색하는 메서드
       @Query( "SELECT b FROM Book b WHERE " +
               "(:categoryId IS NULL OR b.category.categoryId = :categoryId) AND " +
               "(:search IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :search, '%')) "
@@ -28,6 +28,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
       Page<Book> findBooks( @Param("categoryId") Long categoryId,
                             @Param("search") String search, Pageable pageable);
 }
+
+
 /*(:categoryId IS NULL OR b.category.categoryId = :categoryId):
 categoryId가 null이면 필터링을 하지 않음. categoryId가 주어지면 해당 카테고리의 책만 반환
 (:search IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%'))):

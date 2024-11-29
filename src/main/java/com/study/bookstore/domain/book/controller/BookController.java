@@ -85,6 +85,7 @@ public class BookController {
     List<GetBookRespDto> bookList = bookFacade.getBookList(pageNumber, pageSize);
     return ResponseEntity.ok(bookList);
   }
+
   @Operation(summary = "책 상세 조회", description = "책의 상세 정보를 확인합니다.")
   @GetMapping("{bookId}")
   public ResponseEntity<GetBookRespDto> getBookDetail(@PathVariable Long bookId) {
@@ -102,9 +103,17 @@ public class BookController {
     UserType userType = user.getUserType();
     if (userType == null || userType.equals(UserType.USER)) { // UserType은 enum으로 가정
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제 권한이 없습니다.");
-    } else {
-      bookFacade.deleteBook(bookId);
+    }
+
+    try {
+      bookFacade.deleteBook(bookId); //책 삭제 처리
       return ResponseEntity.ok().body("책 삭제가 완료되었습니다.");
+    }catch (IllegalStateException e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("책 삭제 실패: " + e.getMessage());
+    }catch (Exception e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("책 삭제 중 오류가 발생했습니다." + e.getMessage());
     }
   }
 
