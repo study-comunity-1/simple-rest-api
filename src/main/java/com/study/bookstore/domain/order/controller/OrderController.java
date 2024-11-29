@@ -1,18 +1,11 @@
 package com.study.bookstore.domain.order.controller;
 
-import com.study.bookstore.domain.order.dto.resp.GetOrderListRespDto;
 import com.study.bookstore.domain.order.entity.PaymentMethod;
-import com.study.bookstore.domain.order.service.CancelOrderService;
-import com.study.bookstore.domain.order.service.CreateOrderService;
-import com.study.bookstore.domain.order.service.GetOrderListService;
-import com.study.bookstore.domain.order.service.GetOrderService;
-import com.study.bookstore.domain.order.service.UpdateOrderStatusService;
-import com.study.bookstore.domain.orderItem.service.CreateOrderItemService;
+import com.study.bookstore.domain.order.facade.OrderFacade;
 import com.study.bookstore.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,12 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class OrderController {
 
-  private final CreateOrderService createOrderService;
-  private final CreateOrderItemService createOrderItemService;
-  private final UpdateOrderStatusService updateOrderStatusService;
-  private final CancelOrderService cancelOrderService;
-  private final GetOrderListService getOrderListService;
-  private final GetOrderService getOrderService;
+  private final OrderFacade orderFacade;
 
   @Operation(summary = "주문 생성", description = "장바구니에 담긴 상품들을 주문합니다.")
   @PostMapping("/orders")
@@ -46,13 +34,13 @@ public class OrderController {
         return ResponseEntity.badRequest().body("로그인해주세요.");
       }
 
-      Long orderId = createOrderService.createOrder(paymentMethod, user);
+      Long orderId = orderFacade.createOrder(paymentMethod, user);
       // order 생성 후 생성된 orderId 반환
 
-      int totalAmount = createOrderItemService.createOrderItems(orderId, session);
+      int totalAmount = orderFacade.createOrderItems(orderId, session);
       // orderId와 장바구니를 이용해 orderItem 생성 후 총 금액 반환
 
-      createOrderService.updateTotalAmount(orderId, totalAmount);
+      orderFacade.updateTotalAmount(orderId, totalAmount);
       // order에 totalAmount 값 넣기
 
       session.removeAttribute("cart");
@@ -70,11 +58,11 @@ public class OrderController {
   @PutMapping("/readyForPayment")
   public ResponseEntity<String> updateStatus(@RequestParam Long orderId) {
     try {
-      updateOrderStatusService.updateStatus(orderId);
+      orderFacade.updateStatus(orderId);
 
       return ResponseEntity.ok().body("이제 결제가 가능합니다.");
     } catch (Exception e) {
-      updateOrderStatusService.updateFail(orderId);
+      orderFacade.updateFail(orderId);
       // 예외시 상태를 결제실패로 변경
       return ResponseEntity.badRequest().body(e.getMessage());
     }
@@ -85,12 +73,12 @@ public class OrderController {
   @PutMapping("/paymentCompleted")
   public ResponseEntity<String> updateToPaymentCompleted(@RequestParam Long orderId) {
     try {
-      updateOrderStatusService.updateStatus(orderId);
+      orderFacade.updateStatus(orderId);
 
       return ResponseEntity.ok().body("결제가 완료되었습니다.");
     } catch (Exception e) {
       // 만약 결제가 실패하거나 정해진 시간안에 결제를 하지 않은 경우에는 결제실패상태로 변경
-      updateOrderStatusService.updateFail(orderId);
+      orderFacade.updateFail(orderId);
       return ResponseEntity.badRequest().body(e.getMessage());
     }
   }
@@ -105,7 +93,7 @@ public class OrderController {
         return ResponseEntity.badRequest().body("로그인 해주세요.");
       }
 
-      cancelOrderService.cancelOrder(orderId, user);
+      orderFacade.cancelOrder(orderId, user);
 
       return ResponseEntity.ok().body("주문이 취소되었습니다.");
     } catch (Exception e) {
@@ -129,7 +117,7 @@ public class OrderController {
       }
 
       return ResponseEntity.ok().body(
-          getOrderListService.getOrderList(
+          orderFacade.getOrderList(
               pageNo, pageSize, sortBy, direction, user.getUserId()).getContent());
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
@@ -146,7 +134,7 @@ public class OrderController {
         return ResponseEntity.badRequest().body("로그인 해주세요");
       }
 
-      return ResponseEntity.ok().body(getOrderService.getOrder(orderId, user));
+      return ResponseEntity.ok().body(orderFacade.getOrder(orderId, user));
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
     }
