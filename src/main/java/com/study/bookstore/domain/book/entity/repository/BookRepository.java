@@ -4,6 +4,7 @@ import com.study.bookstore.domain.book.dto.req.CreateBookReqDto;
 import com.study.bookstore.domain.book.dto.req.UpdateBookReqDto;
 import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.user.entity.User;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,6 +28,8 @@ public interface BookRepository extends JpaRepository<Book, Long> {
               + "OR LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%')))")
       Page<Book> findBooks( @Param("categoryId") Long categoryId,
                             @Param("search") String search, Pageable pageable);
+  //삭제된 책 필터링(isDeleted가 true인 책이 조회되지 않는 쿼리
+  //List<Book> findAllByIsDeletedFalse();
 }
 
 

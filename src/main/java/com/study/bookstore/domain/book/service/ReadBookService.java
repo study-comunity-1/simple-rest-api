@@ -12,8 +12,16 @@ public class ReadBookService {
 
   private final BookRepository bookRepository;
 
-  public Book readBook(Long bookId) {
+  //책 단순 조회
+  public Book findBookById(Long bookId){
     return bookRepository.findById(bookId)
-        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 책입니다."));
+        .orElseThrow(() -> new RuntimeException("책을 찾을 수 없습니다."));
+  }
+
+  //책 삭제 여부 확인
+  public void vailidateBookNotDeleted(Book book){
+    if(book.isDeleted()){
+      throw new RuntimeException("삭제된 책은 처리할 수 없습니다.");
+    }
   }
 }

@@ -99,13 +99,14 @@ public class Book extends BaseTimeEntity {
     }
     this.isDeleted = true;
   }
-  //책 상태를 삭제됨으로 변경하는 메서드
+  //책 상태를 복구하는 메서드
   public void markAsRestored(){
     this.isDeleted = false;
   }
 
+  // stock 값을 설정하는 메서드
   public void setStock(int stock) {
-    this.stock = stock; // stock 값을 설정하는 메서드
+    this.stock = stock;
   }
 
   public void updateFrom(UpdateBookReqDto req) {
@@ -121,13 +122,34 @@ public class Book extends BaseTimeEntity {
     // updatedDate, createdDate는 JPA에서 자동으로 관리
   }
 
-  // 책 주문시 재고 -- (결제 대기 -> 결제요청으로 상태가 변경될 때)
-  public void buyBook(int quantity) {
+  //재고 감소
+  public void buyBook(int quantity){
+    if(this.isDeleted){
+      throw new IllegalStateException("삭제된 책은 주문할 수 없습니다.");
+    }
+    if(quantity <= 0){
+      throw new IllegalStateException("주문 수량은 1 이상이어야 합니다.");
+    }
+    if(this.stock < quantity){
+      throw new IllegalStateException("재고가 부족합니다?????.");
+    }
     this.stock -= quantity;
   }
 
-  // 주문 취소시 재고 ++ (결제취소로 상태가 변경될 때)
-  public void returnBook(int quantity) {
+  //책 취소 시 재고 증가 메서드(결제 취소로 상태가 변경될 때)
+  public void returnBook(int quantity){
+    if(this.isDeleted){
+      throw new IllegalStateException("삭제된 책은 주문을 취소할 수 없습니다.");
+    }
+    if(quantity <= 0){
+      throw new IllegalStateException("취소 수량은 1 이상이어야 합니다.");
+    }
+
     this.stock += quantity;
+    System.out.println("변경된 재고 " + this.stock);//변경된 재고 출력
+  }
+  //재고 확인을 위한 메서드
+  public int getStock(){
+    return this.stock;
   }
 }
