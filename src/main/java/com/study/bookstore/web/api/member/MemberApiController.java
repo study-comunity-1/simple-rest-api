@@ -81,5 +81,4 @@ public class MemberApiController {
 
     return ResponseEntity.ok().body("로그아웃 성공");
   }
-
 }
