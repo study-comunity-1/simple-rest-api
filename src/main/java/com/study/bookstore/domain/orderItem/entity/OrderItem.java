@@ -48,4 +48,12 @@ public class OrderItem extends BaseTimeEntity {
 
   @Column(name = "item_price", nullable = false)
   private int itemPrice;
+
+  @Builder.Default
+  @Column(name = "is_delete", nullable = false)
+  private boolean isDelete = false;
+
+  public void softDelete() {
+    this.isDelete = true;
+  }
 }
