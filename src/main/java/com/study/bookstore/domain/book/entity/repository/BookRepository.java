@@ -23,13 +23,12 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
  // categoryId와 search 조건으로 책을 검색하는 메서드
       @Query( "SELECT b FROM Book b WHERE " +
+              "b.isDeleted = false AND " +
               "(:categoryId IS NULL OR b.category.categoryId = :categoryId) AND " +
               "(:search IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :search, '%')) "
               + "OR LOWER(b.author) LIKE LOWER(CONCAT('%', :search, '%')))")
       Page<Book> findBooks( @Param("categoryId") Long categoryId,
                             @Param("search") String search, Pageable pageable);
-  //삭제된 책 필터링(isDeleted가 true인 책이 조회되지 않는 쿼리
-  //List<Book> findAllByIsDeletedFalse();
 }
 
 

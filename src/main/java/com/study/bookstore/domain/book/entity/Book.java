@@ -85,6 +85,7 @@ public class Book extends BaseTimeEntity {
 
   // 리뷰와의 관계 설정 (책 삭제 시 리뷰도 함께 삭제)
   @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+  @JsonIgnore
   private List<Review> reviews;
 
   //논리적 삭제 상태를 추가
@@ -131,7 +132,7 @@ public class Book extends BaseTimeEntity {
       throw new IllegalStateException("주문 수량은 1 이상이어야 합니다.");
     }
     if(this.stock < quantity){
-      throw new IllegalStateException("재고가 부족합니다?????.");
+      throw new IllegalStateException("재고가 부족합니다");
     }
     this.stock -= quantity;
   }
