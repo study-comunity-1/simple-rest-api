@@ -21,16 +21,8 @@ public class GetBookListService {
 
   private final BookRepository bookRepository;
 
-  public List<GetBookRespDto> getBookList(int pageNumber, int pageSize) {
-    // Pageable 객체 생성
-    Pageable pageable = PageRequest.of(pageNumber - 1, pageSize); // 페이지 번호는 0부터 시작하므로 -1
-
-    // 책 목록을 페이징 처리하여 조회 Page<Book>는 책 목록을 페이지로 나눈 형태
-    Page<Book> bookPage = bookRepository.findAll(pageable);
-
-    // Book 엔티티를 DTO로 변환
-    return bookPage.stream()
-        .map(GetBookRespDto::of) // of 메서드를 사용하여 변환
-        .collect(Collectors.toList());
+  //책 목록 조회(페이징 처리는 파샤드에서 담당)
+  public Page<Book> getBookList(Pageable pageable) {
+    return bookRepository.findAll(pageable);
   }
 }

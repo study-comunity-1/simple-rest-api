@@ -14,11 +14,11 @@ public class InventoryService {
 
 
   private final BookRepository bookRepository;
+  private final ReadBookService readBookService;
 
   //책 재고 확인
   public int getInventory(Long bookId) {
-    Book book = bookRepository.findById(bookId)
-        .orElseThrow(() -> new RuntimeException("책을 찾을 수 없습니다."));
+    Book book = readBookService.findBookById(bookId);
     return book.getStock();
   }
 

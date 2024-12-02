@@ -89,9 +89,13 @@ public class BookController {
 
   @Operation(summary = "책 상세 조회", description = "책의 상세 정보를 확인합니다.")
   @GetMapping("{bookId}")
-  public ResponseEntity<GetBookRespDto> getBookDetail(@PathVariable Long bookId) {
-    GetBookRespDto bookDetail = bookFacade.getBookListDetail(bookId);
-    return ResponseEntity.ok(bookDetail);
+  public ResponseEntity<?> getBookDetail(@PathVariable Long bookId) {
+    try {
+      GetBookRespDto bookDetail = bookFacade.getBookListDetail(bookId);
+      return ResponseEntity.ok(bookDetail);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
   }
   @Operation(summary = "책 삭제", description = "책 삭제 관리자만 가능")
   @DeleteMapping("{bookId}")
