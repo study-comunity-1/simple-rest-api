@@ -171,7 +171,6 @@ public class OrderFacade {
   }
 
   public void cancelOrder(Long orderId, User user) {
-    try {
       Order order = readOrderService.readOrder(orderId);
 
       if (!order.getUser().getUserId().equals(user.getUserId())) {
@@ -195,7 +194,6 @@ public class OrderFacade {
       if (order.getStatus() == Status.READY_FOR_PAYMENT ||
           order.getStatus() == Status.PAYMENT_COMPLETED) {
 
-
         List<OrderItem> orderItems = readOrderItemService.readOrderItemsByOrderId(orderId);
 
         for (OrderItem orderItem : orderItems) {
@@ -206,9 +204,6 @@ public class OrderFacade {
       // 결제 대기상태에서는 아직 재고가 차감되지 않았으므로 상태만 변경하면 된다.
 
       order.updateStatus(Status.CANCELLED);
-    } catch (Exception e) {
-      throw new RuntimeException("주문 취소 중 오류가 발생하였습니다.", e);
-    }
   }
 
   public Page<GetOrderListRespDto> getOrderList(
