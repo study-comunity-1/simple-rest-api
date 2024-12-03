@@ -1,12 +1,17 @@
 package com.study.bookstore.domain.order.controller;
 
+import com.study.bookstore.domain.member.entity.Member;
 import com.study.bookstore.domain.order.entity.PaymentMethod;
 import com.study.bookstore.domain.order.facade.OrderFacade;
+import com.study.bookstore.domain.tokenBlacklist.service.TokenBlacklistService;
 import com.study.bookstore.domain.user.entity.User;
+import com.study.bookstore.global.jwt.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,18 +28,43 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
   private final OrderFacade orderFacade;
+  private final JwtUtil jwtUtil;
+  private final TokenBlacklistService tokenBlacklistService;
 
   @Operation(summary = "주문 생성", description = "장바구니에 담긴 상품들을 주문합니다.")
   @PostMapping("/orders")
-  public ResponseEntity<String> createOrder(PaymentMethod paymentMethod, HttpSession session) {
+  public ResponseEntity<?> createOrder(PaymentMethod paymentMethod, HttpServletRequest request) {
     try {
-      User user = (User) session.getAttribute("user");
+      String token = request.getHeader("Authorization");
 
-      if (user == null) {
-        return ResponseEntity.badRequest().body("로그인해주세요.");
+      if (token == null) {
+        return ResponseEntity.badRequest().body("인증 정보가 없습니다. 로그인 해주세요.");
       }
 
-      Long orderId = orderFacade.createOrder(paymentMethod, user);
+      if (!token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 형식이 잘못되었습니다. 유효한 토큰을 제시해주세요");
+      }
+
+      String jwtToken = token.substring(7);
+
+      if (tokenBlacklistService.isBlacklisted(jwtToken)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그아웃된 계정입니다.");
+      }
+
+      String email = jwtUtil.getUserId(jwtToken);
+
+      if (email == null) {
+        return ResponseEntity.badRequest().body("로그인된 사용자가 아닙니다.");
+      }
+
+      Member member = orderFacade.getMemberByEmail(email);
+      if (member == null) {
+        return ResponseEntity.badRequest().body("사용자 정보를 찾을 수 없습니다.");
+      }
+
+      HttpSession session = request.getSession();
+
+      Long orderId = orderFacade.createOrder(paymentMethod, member);
       // order 생성 후 생성된 orderId 반환
 
       int totalAmount = orderFacade.createOrderItems(orderId, session);

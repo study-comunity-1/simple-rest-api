@@ -2,6 +2,8 @@ package com.study.bookstore.domain.order.facade;
 
 import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.book.service.ReadBookService;
+import com.study.bookstore.domain.member.entity.Member;
+import com.study.bookstore.domain.member.service.read.ReadMemberService;
 import com.study.bookstore.domain.order.dto.resp.GetOrderListRespDto;
 import com.study.bookstore.domain.order.dto.resp.GetOrderRespDto;
 import com.study.bookstore.domain.order.entity.Order;
@@ -37,7 +39,25 @@ public class OrderFacade {
   private final CreateOrderItemService createOrderItemService;
   private final ReadBookService readBookService;
   private final ReadOrderItemService readOrderItemService;
+  private final ReadMemberService readMemberService;
 
+  public Long createOrder(PaymentMethod paymentMethod, Member member) {
+    try {
+      Order order = Order.builder()
+          .member(member)
+          .paymentMethod(paymentMethod)
+          .totalAmount(-1)
+          .build();
+
+      Order saveOrder = createOrderService.createOrder(order);
+
+      return saveOrder.getOrderId();
+    } catch (IllegalArgumentException e) {
+      log.error("** 입력값 검증 실패 : {} **", e.getMessage());
+      throw new RuntimeException("주문 생성 중 오류가 발생하였습니다.", e);
+    }
+  }
+  /*
   public Long createOrder(PaymentMethod paymentMethod, User user) {
     try {
       Order order = Order.builder()
@@ -54,6 +74,7 @@ public class OrderFacade {
       throw new RuntimeException("주문 생성 중 오류가 발생하였습니다.", e);
     }
   }
+  */
 
   public void updateTotalAmount(Long orderId, int totalAmount) {
     try {
@@ -231,5 +252,9 @@ public class OrderFacade {
     } catch (Exception e) {
       throw new RuntimeException("주문 상세 조회 중 오류가 발생하였습니다.", e);
     }
+  }
+
+  public Member getMemberByEmail(String email) {
+    return readMemberService.findMemberByEmail(email);
   }
 }

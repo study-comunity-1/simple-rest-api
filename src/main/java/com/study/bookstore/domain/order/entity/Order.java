@@ -1,5 +1,6 @@
 package com.study.bookstore.domain.order.entity;
 
+import com.study.bookstore.domain.member.entity.Member;
 import com.study.bookstore.domain.orderItem.entity.OrderItem;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.global.entity.BaseTimeEntity;
@@ -37,9 +38,19 @@ public class Order extends BaseTimeEntity {
   private Long orderId;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "member_id", nullable = false)
+  private Member member;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  // 한 명의 유저는 여러개의 주문을 가질 수 있다.
+  @JoinColumn(name = "user_id")
+  private User user;
+  /*
+  @ManyToOne(fetch = FetchType.LAZY)
   // 한 명의 유저는 여러개의 주문을 가질 수 있다.
   @JoinColumn(name = "user_id", nullable = false)
   private User user;
+  */
 
   @Column(name = "total_amount", nullable = false)
   private int totalAmount;
