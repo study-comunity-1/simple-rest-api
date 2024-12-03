@@ -78,6 +78,7 @@ public class MemberApiController {
     log.info("** expTime : {} **", expTime);
 
     tokenBlacklistService.createTokenBlacklist(token, expTime);
+    request.getSession().removeAttribute("cart");
 
     return ResponseEntity.ok().body("로그아웃 성공");
   }
