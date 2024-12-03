@@ -9,24 +9,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Slf4j
-@Transactional
 @Service
 @RequiredArgsConstructor
 public class CreateUserService {
 
   private final UserRepository userRepository;
-  private final BCryptPasswordEncoder passwordEncoder;
 
-  public void createUser(CreateUserReqDto req) {
-    User user = req.of(passwordEncoder.encode(req.password()));
-    // req.password() : 유저가 회원가입시 입력한 비밀번호를 가져옴 => 평문 비밀번호
-    // passwordEncoder.encode(req.password()) : 가져온 평문 비밀번호를 암호화
-    // req.of(passwordEncoder.encode(req.password())) : 암호화한 비밀번호를 of()메서드의 매개변수로 전달
-
-    log.info("user_id: {}", user.getUserId());
-    // 로깅
-
+  public void createUser(User user) {
     userRepository.save(user);
   }
 }

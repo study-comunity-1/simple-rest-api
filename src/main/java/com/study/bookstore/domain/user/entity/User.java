@@ -35,16 +35,16 @@ public class User extends BaseTimeEntity {
   @Column(nullable = false)
   private String name;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String email;
 
   @Column(nullable = false)
   private String password;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String nick;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false)
   private String phone;
 
   @Column(nullable = false)
@@ -57,20 +57,28 @@ public class User extends BaseTimeEntity {
   // userType은 입력하지않으면 자동으로 USER가 된다
   // 관리자의 경우에만 회원가입시 userType = ADMIN으로 적어주기
 
-  //orders 추가해야함
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "user")
   private List<Order> orders;
 
   //유저가 가진 리뷰 목록
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "user")
   private List<Review> reviews;
+
+  @Builder.Default
+  @Column(name = "is_delete", nullable = false)
+  private boolean isDelete = false;
 
   public void updateUser(String password, String nick, String address) {
     this.password = password;
     this.nick = nick;
     this.address = address;
   }
+
   public Long getId() {
     return userId;
+  }
+
+  public void softDelete() {
+    this.isDelete = true;
   }
 }

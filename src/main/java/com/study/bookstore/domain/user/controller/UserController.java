@@ -3,24 +3,17 @@ package com.study.bookstore.domain.user.controller;
 import com.study.bookstore.domain.user.dto.req.CreateUserReqDto;
 import com.study.bookstore.domain.user.dto.req.LoginUserReqDto;
 import com.study.bookstore.domain.user.dto.req.UpdateUserReqDto;
-import com.study.bookstore.domain.user.dto.resp.UserReviewListRespDto;
-import com.study.bookstore.domain.user.entity.User;
-import com.study.bookstore.domain.user.service.CreateUserService;
-import com.study.bookstore.domain.user.service.DeleteUserService;
-import com.study.bookstore.domain.user.service.GetUserReviewService;
-import com.study.bookstore.domain.user.service.LoginUserService;
-import com.study.bookstore.domain.user.service.UpdateUserService;
+import com.study.bookstore.domain.user.facade.UserFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,25 +22,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "User", description = "유저 API")
+@Slf4j
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
 
-  private final CreateUserService createUserService;
-  private final LoginUserService loginUserService;
-  private final DeleteUserService deleteUserService;
-  private final UpdateUserService updateUserService;
-  private final GetUserReviewService getUserReviewService;
+  private final UserFacade userFacade;
 
   @Operation(summary = "유저생성", description = "입력한 정보로 유저를 생성합니다.(회원가입)")
   @PostMapping
   public ResponseEntity<String> createUser(@RequestBody CreateUserReqDto req) {
     try {
-      createUserService.createUser(req);
+      userFacade.createUser(req);
       return ResponseEntity.ok().body("회원가입이 완료되었습니다.");
     } catch (Exception e) {
-      return ResponseEntity.badRequest().build();
+      log.error("** 회원가입 중 오류가 발생하였습니다 : {} **", e.getMessage(), e);
+      return ResponseEntity.badRequest().body("회원가입에 실패하였습니다.");
     }
   }
 
@@ -55,7 +46,7 @@ public class UserController {
   @PostMapping("/login")
   public ResponseEntity<String> loginUser(@RequestBody LoginUserReqDto req, HttpSession session) {
     try {
-      loginUserService.loginUser(req, session);
+      userFacade.loginUser(req, session);
       /*
       로그인이 성공했는지 확인하기위한 코드 => 해당코드 실행시 Response body에 로그인된 계정 정보가 출력된다.
       User user = (User) session.getAttribute("user");
@@ -90,7 +81,7 @@ public class UserController {
   @DeleteMapping("/delete")
   public ResponseEntity<String> deleteUser(HttpSession session) {
     try {
-      deleteUserService.deleteUser(session);
+      userFacade.deleteUser(session);
       session.removeAttribute("user");
       session.removeAttribute("cart");
       return ResponseEntity.ok().body("회원탈퇴한 계정입니다.");
@@ -103,7 +94,7 @@ public class UserController {
   @PutMapping("/update")
   public ResponseEntity<String> updateUser(@RequestBody UpdateUserReqDto req, HttpSession session) {
     try {
-      updateUserService.updateUser(req, session);
+      userFacade.updateUser(req, session);
       session.removeAttribute("user");
       session.removeAttribute("cart");
       return ResponseEntity.ok().body("회원 정보 수정이 완료되었습니다.");
@@ -120,6 +111,6 @@ public class UserController {
       @RequestParam(defaultValue = "10") int size  // 기본값을 10으로 설정
   ) {
     Pageable pageable = PageRequest.of(page - 1, size); // Spring은 0부터 시작하므로 page - 1
-    return ResponseEntity.ok().body(getUserReviewService.getUserReview(session, pageable).getContent());
+    return ResponseEntity.ok().body(userFacade.getUserReview(session, pageable).getContent());
   }
 }

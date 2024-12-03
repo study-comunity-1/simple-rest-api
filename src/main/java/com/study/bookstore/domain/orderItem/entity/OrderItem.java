@@ -32,7 +32,7 @@ public class OrderItem extends BaseTimeEntity {
   @Column(name = "order_item_id")
   private Long orderItemId;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   // 하나의 order는 여러개의 orderItem을 가질 수 있다.
   @JoinColumn(name = "order_id", nullable = false)
   private Order order;
@@ -48,4 +48,12 @@ public class OrderItem extends BaseTimeEntity {
 
   @Column(name = "item_price", nullable = false)
   private int itemPrice;
+
+  @Builder.Default
+  @Column(name = "is_delete", nullable = false)
+  private boolean isDelete = false;
+
+  public void softDelete() {
+    this.isDelete = true;
+  }
 }

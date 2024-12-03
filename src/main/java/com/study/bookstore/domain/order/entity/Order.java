@@ -55,11 +55,16 @@ public class Order extends BaseTimeEntity {
   @Column(name = "payment_date")
   private LocalDateTime paymentDate;
 
-  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "order")
   // 하나의 order는 여러개의 orderItem을 가질 수 있다.
   // mappedBy = "order" : orderItems에 있는 order필드에 의해 매핑됨
   // cascade = CascadeType.ALL : order가 저장,삭제될 때 orderItem도 같이 저장,삭제
   private List<OrderItem> orderItems;
+
+  @Builder.Default
+  @Column(name = "is_delete", nullable = false)
+  private boolean isDelete = false;
+  // 삭제 요청시 실제로 데이터가 삭제되는 것이 아니라 soft delete 방식으로 처리
 
   public void updateTotalAmount(int totalAmount) {
     this.totalAmount = totalAmount;
@@ -72,5 +77,10 @@ public class Order extends BaseTimeEntity {
     if (status == Status.PAYMENT_COMPLETED) {
       this.paymentDate = LocalDateTime.now();
     }
+  }
+
+  public void softDelete() {
+    this.isDelete = true;
+    // isDelete = true => 삭제된 상태를 의미 (물리적인 삭제가 아니라 논리적인 삭제)
   }
 }
