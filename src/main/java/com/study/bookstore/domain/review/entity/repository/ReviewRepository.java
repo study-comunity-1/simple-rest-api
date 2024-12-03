@@ -19,7 +19,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
   Optional<Review> findById(Long reviewId);//리뷰 아이디로 리뷰 찾기
   @Query("SELECT r FROM Review r WHERE r.book.id = :bookId")
   List<Review> findByBookId(@Param("bookId") Long bookId);
-
   Page<Review> findByUser(User user, Pageable pageable); // 유저의 리뷰 목록을 페이지네이션으로 조회
 
 }

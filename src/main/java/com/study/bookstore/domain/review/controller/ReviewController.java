@@ -19,6 +19,7 @@ import com.study.bookstore.domain.user.entity.UserType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
@@ -90,9 +91,7 @@ public class ReviewController {
     try {
       // DTO 객체와 로그인한 사용자 객체를 서비스 메서드에 넘김
       reviewFacade.updateReview(reviewId, req, user);
-
       return ResponseEntity.ok("리뷰가 성공적으로 수정되었습니다.");
-
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body("리뷰 수정 중 오류 발생 " + e.getMessage());
@@ -100,9 +99,14 @@ public class ReviewController {
   }
   @Operation(summary = "특정 책에 대한 리뷰 확인")
   @GetMapping("/books/{bookId}/reviews")
-  public List<ReviewListRespDto> reviewList(@PathVariable Long bookId) {
-    List<ReviewListRespDto> reviews = reviewFacade.getReviewsForBook(bookId);
-    return reviews;
+  public ResponseEntity<?> reviewList(@PathVariable Long bookId) {
+    try{
+      List<ReviewListRespDto> reviews = reviewFacade.getReviewsForBook(bookId);
+    return ResponseEntity.ok(reviews);
+    }
+    catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
   }
   @Operation(summary = "전체 리뷰 확인")
   @GetMapping("/allreviews")
