@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "User", description = "유저 API")
+@Slf4j
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -35,7 +37,8 @@ public class UserController {
       userFacade.createUser(req);
       return ResponseEntity.ok().body("회원가입이 완료되었습니다.");
     } catch (Exception e) {
-      return ResponseEntity.badRequest().build();
+      log.error("** 회원가입 중 오류가 발생하였습니다 : {} **", e.getMessage(), e);
+      return ResponseEntity.badRequest().body("회원가입에 실패하였습니다.");
     }
   }
 
