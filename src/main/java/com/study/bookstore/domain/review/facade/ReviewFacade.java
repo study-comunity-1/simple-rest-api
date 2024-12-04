@@ -68,13 +68,6 @@ public class ReviewFacade {
     //5.CreateReviewReqDto에서 Review객체로 변환
     Review review = req.toReview(book, user);
     createReviewService.createReview(review);  // req와 user 전달
-
-  public void createReview(CreateReviewReqDto req, User user){
-    // 여기서 유저 id를 기준으로 db에서 유저를 찾아와야함
-    // readuserservice를 가져와서.readuser(user.userid)를 user로 넣고 create에 넣어라
-
-    createReviewService.createReview(req, user);  // req와 user 전달
-
   }
 
   //리뷰 삭제

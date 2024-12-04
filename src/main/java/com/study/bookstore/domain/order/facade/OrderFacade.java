@@ -107,7 +107,7 @@ public class OrderFacade {
         Long bookId = entry.getKey();
         int quantity = entry.getValue();
 
-        Book book = readBookService.readBook(bookId);
+        Book book = readBookService.findBookById(bookId);
 
         OrderItem orderItem = OrderItem.builder()
             .order(order)

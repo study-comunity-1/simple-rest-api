@@ -66,8 +66,6 @@ public class ReadReviewService {
   }
 
 
-  private final ReviewRepository reviewRepository;
-
   public Page<Review> readReviewPage(User user, Pageable pageable) {
     return reviewRepository.findByUser(user, pageable);
   }
