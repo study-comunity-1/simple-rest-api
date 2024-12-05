@@ -44,4 +44,5 @@ public class Member {
   @Enumerated(value = EnumType.STRING)
   @Column(nullable = false)
   private Role role;
+
 }

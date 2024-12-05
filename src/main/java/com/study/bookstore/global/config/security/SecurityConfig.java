@@ -53,7 +53,7 @@ public class SecurityConfig {
         // .authorizeHttpRequests() : 이 부분에 url경로와 허용 권한을 지정
         .authorizeHttpRequests(c -> c
             .requestMatchers(AUTH_WHITELIST).permitAll()  // 인증이 필요없는 url => 모두 허용
-            //.requestMatchers("/book/categories/{categoryId}").hasRole("ADMIN")  // 책 추가는 role이 ADMIN인 member만 가능
+            .requestMatchers("/book/categories/{categoryId}").hasRole("ADMIN")  // 책 추가는 role이 ADMIN인 member만 가능
             .requestMatchers("/order/orders").hasAnyRole("ADMIN", "USER") // 책 주문은 role이 ADMIN, USER인 member만 가능
             //.anyRequest().authenticated())  // 그 외 요청은 로그인된 사용자만 접근 가능
             .anyRequest().permitAll())   // 그 외 요청 모두 접근 가능 (로그인을 하지 않아도 모든 요청을 허용 => 보안을 위해 하지 않는 것이 좋다)

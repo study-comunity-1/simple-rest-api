@@ -41,7 +41,8 @@ public class CategoryController {
 
   @Operation(summary = "카테고리 추가")
   @PostMapping
-  /*public ResponseEntity<String> addCategory(@RequestBody CreateCategoryReqDto req,
+  /*
+public ResponseEntity<String> addCategory(@RequestBody CreateCategoryReqDto req,
       HttpSession session) {
     User user = (User) session.getAttribute("user");
     if (user == null) {
@@ -60,7 +61,7 @@ public class CategoryController {
           .body(e.getMessage());
     }
   }
-   */
+*/
   public ResponseEntity<String> addCategory(
       @RequestBody CreateCategoryReqDto req,
       HttpServletRequest request) {
@@ -101,6 +102,8 @@ public class CategoryController {
           .body(e.getMessage());
     }
   }
+
+
   @Operation(summary = "카테고리 수정")
   @PutMapping("/{categoryId}")
   public ResponseEntity<String> updateCategory(@PathVariable Long categoryId,

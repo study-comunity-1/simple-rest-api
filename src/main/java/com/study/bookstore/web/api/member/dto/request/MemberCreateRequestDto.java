@@ -16,7 +16,8 @@ public record MemberCreateRequestDto(
     @NotBlank
     String name,
     String gender,
-    String phoneNumber
+    String phoneNumber,
+    String role
 ) {
 
   public Member of(String password) {
@@ -26,7 +27,8 @@ public record MemberCreateRequestDto(
         .password(password)
         .phoneNumber(phoneNumber)
         .gender(Gender.valueOf(gender))
-        .role(Role.valueOf("USER"))
+        .role(Role.valueOf("USER"))   // => 입력으로 role을 받지 않을 때 자동으로 user role을 줌
+        .role(Role.valueOf(role))
         .authType(AuthType.valueOf("COMMON"))
         .build();
   }
