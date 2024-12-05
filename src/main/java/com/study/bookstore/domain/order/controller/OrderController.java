@@ -1,8 +1,10 @@
 package com.study.bookstore.domain.order.controller;
 
 import com.study.bookstore.domain.member.entity.Member;
+import com.study.bookstore.domain.order.entity.Order;
 import com.study.bookstore.domain.order.entity.PaymentMethod;
 import com.study.bookstore.domain.order.facade.OrderFacade;
+import com.study.bookstore.domain.order.service.ReadOrderService;
 import com.study.bookstore.domain.tokenBlacklist.service.TokenBlacklistService;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.global.jwt.util.JwtUtil;
@@ -11,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @Tag(name = "Order", description = "주문 API")
 @RestController
 @RequestMapping("/order")
@@ -30,6 +34,7 @@ public class OrderController {
   private final OrderFacade orderFacade;
   private final JwtUtil jwtUtil;
   private final TokenBlacklistService tokenBlacklistService;
+  private final ReadOrderService readOrderService;
 
   @Operation(summary = "주문 생성", description = "장바구니에 담긴 상품들을 주문합니다.")
   @PostMapping("/orders")
@@ -77,7 +82,7 @@ public class OrderController {
       // 주문이 완료되면 장바구니 세션 삭제하기
 
       return ResponseEntity.ok().body("주문이 완료되었습니다.");
-      // orderId를 가지고 @PutMapping("/updateToReadyForPayment")로 리다이렉트
+      // orderId를 가지고 @PutMapping("/readyForPayment")로 리다이렉트
 
     } catch (Exception e) {
       return ResponseEntity.badRequest().body(e.getMessage());
@@ -86,9 +91,42 @@ public class OrderController {
 
   @Operation(summary = "결제대기 -> 결제요청 상태 변경")
   @PutMapping("/readyForPayment")
-  public ResponseEntity<String> updateStatus(@RequestParam Long orderId) {
+  public ResponseEntity<String> updateStatus(
+      @RequestParam Long orderId, HttpServletRequest request) {
     try {
-      orderFacade.updateStatus(orderId);
+      String token = request.getHeader("Authorization");
+
+      if (token == null) {
+        return ResponseEntity.badRequest().body("인증 정보가 없습니다. 로그인 해주세요.");
+      }
+
+      if (!token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 형식이 잘못되었습니다. 유효한 토큰을 제시해주세요");
+      }
+
+      String jwtToken = token.substring(7);
+
+      if (tokenBlacklistService.isBlacklisted(jwtToken)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그아웃된 계정입니다.");
+      }
+
+      String email = jwtUtil.getUserId(jwtToken);
+      if (email == null) {
+        return ResponseEntity.badRequest().body("로그인된 사용자가 아닙니다.");
+      }
+
+      Order order = readOrderService.readOrder(orderId);
+      if (order == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 주문이 존재하지 않습니다.");
+      }
+      log.info("** orderId : {} **", order.getOrderId());
+      log.info("** orderEmail : {} **", order.getMember().getEmail());
+
+      if (!order.getMember().getEmail().equals(email)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("해당 주문에 권한이 없습니다.");
+      }
+
+      orderFacade.updateStateToReadyForPayment(orderId);
 
       return ResponseEntity.ok().body("이제 결제가 가능합니다.");
     } catch (Exception e) {
@@ -101,9 +139,40 @@ public class OrderController {
   @Operation(summary = "결제요청 -> 결제완료 상태 변경",
       description = "결제완료 이후의 상태는 일정시간이 지나면 자동으로 변경됩니다.")
   @PutMapping("/paymentCompleted")
-  public ResponseEntity<String> updateToPaymentCompleted(@RequestParam Long orderId) {
+  public ResponseEntity<String> updateToPaymentCompleted(
+      @RequestParam Long orderId, HttpServletRequest request) {
     try {
-      orderFacade.updateStatus(orderId);
+      String token = request.getHeader("Authorization");
+
+      if (token == null) {
+        return ResponseEntity.badRequest().body("인증 정보가 없습니다. 로그인 해주세요.");
+      }
+
+      if (!token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 형식이 잘못되었습니다. 유효한 토큰을 제시해주세요");
+      }
+
+      String jwtToken = token.substring(7);
+
+      if (tokenBlacklistService.isBlacklisted(jwtToken)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그아웃된 계정입니다.");
+      }
+
+      String email = jwtUtil.getUserId(jwtToken);
+      if (email == null) {
+        return ResponseEntity.badRequest().body("로그인된 사용자가 아닙니다.");
+      }
+
+      Order order = readOrderService.readOrder(orderId);
+      if (order == null) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 주문이 존재하지 않습니다.");
+      }
+
+      if (!order.getMember().getEmail().equals(email)) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("해당 주문에 권한이 없습니다.");
+      }
+
+      orderFacade.updateStateToPaymentCompleted(orderId);
 
       return ResponseEntity.ok().body("결제가 완료되었습니다.");
     } catch (Exception e) {

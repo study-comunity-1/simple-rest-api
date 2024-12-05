@@ -127,22 +127,16 @@ public class OrderFacade {
     }
   }
 
-  public void updateStatus(Long orderId) {
+  public void updateStateToReadyForPayment(Long orderId) {
     try {
       Order order = readOrderService.readOrder(orderId);
 
       if (order.getStatus() == Status.READY_FOR_PAYMENT) {
-        // order의 현재 상태가 READY_FOR_PAYMENT(결제요청)상태인지 확인 -> 결제완료상태로 변경
-        try {
-          // 실제로 결제가 이루어지지는 않으므로 가상으로 결제가 완료되었다고 가정
-          order.updateStatus(Status.PAYMENT_COMPLETED);
-        } catch (Exception e) {
-          throw new RuntimeException("결제 실패");
-        }
-      }
-
-      if (order.getStatus() == Status.PENDING) {
-        // order의 현재 상태가 PENDING(결제대기)상태인지 확인 -> 결제요청상태로 변경
+        log.info("이미 결제 요청 상태입니다.");
+      } else if (order.getStatus() != Status.PENDING) {
+        throw new IllegalStateException("현재 결제 대기 상태가 아닙니다.");
+      } else {
+      // order의 현재 상태가 PENDING(결제대기)상태인지 확인 -> 결제요청상태로 변경
 
         List<OrderItem> orderItems = readOrderItemService.readOrderItemsByOrderId(orderId);
 
@@ -172,6 +166,26 @@ public class OrderFacade {
         // 책 재고 --해주기
         for (OrderItem orderItem : orderItems) {
           orderItem.getBook().buyBook(orderItem.getQuantity());
+        }
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("주문상태 업데이트 중 오류가 발생하였습니다.", e);
+    }
+  }
+
+  public void updateStateToPaymentCompleted(Long orderId) {
+    try {
+      Order order = readOrderService.readOrder(orderId);
+
+      if (order.getStatus() != Status.READY_FOR_PAYMENT) {
+        throw new IllegalStateException("현재 결제 요청 상태가 아닙니다.");
+      } else {
+      // order의 현재 상태가 READY_FOR_PAYMENT(결제요청)상태인지 확인 -> 결제완료상태로 변경
+        try {
+          // 실제로 결제가 이루어지지는 않으므로 가상으로 결제가 완료되었다고 가정
+          order.updateStatus(Status.PAYMENT_COMPLETED);
+        } catch (Exception e) {
+          throw new RuntimeException("결제 실패", e);
         }
       }
     } catch (Exception e) {
