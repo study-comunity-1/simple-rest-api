@@ -37,12 +37,12 @@ public class Review extends BaseTimeEntity {
   @Column(name = "review_id")
   private Long reviewId;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "book_id", nullable = false)
   private Book book;
 
-  @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-  @JoinColumn(name = "user_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
   private User user;
 
   @Column(nullable = false)
@@ -50,6 +50,15 @@ public class Review extends BaseTimeEntity {
 
   @Column(columnDefinition = "TEXT", nullable = false)
   private String content;
+
+  @Builder.Default
+  @Column(name = "is_deleted", nullable = false)
+  private boolean isDeleted = false; // 기본값 false설정
+
+  //리뷰를 논리적으로 삭제하는 메서드
+  public void markAsDeleted(){
+    this.isDeleted = true;
+  }
 
   public void setContent(String content) {
     this.content=content;

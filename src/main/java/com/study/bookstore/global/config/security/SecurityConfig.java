@@ -54,7 +54,7 @@ public class SecurityConfig {
         // .authorizeHttpRequests() : 이 부분에 url경로와 허용 권한을 지정
         .authorizeHttpRequests(c -> c
             .requestMatchers(AUTH_WHITELIST).permitAll()  // 인증이 필요없는 url => 모두 허용
-            //.requestMatchers("/book/categories/{categoryId}").hasRole("ADMIN")  // 책 추가는 role이 ADMIN인 member만 가능
+            .requestMatchers("/book/categories/{categoryId}").hasRole("ADMIN")  // 책 추가는 role이 ADMIN인 member만 가능
             .requestMatchers("/order/orders").hasAnyRole("ADMIN", "USER") // 책 주문은 role이 ADMIN, USER인 member만 가능
             .requestMatchers("/order/readyForPayment").hasAnyRole("ADMIN", "USER")
             .requestMatchers("/order/paymentCompleted").hasAnyRole("ADMIN", "USER")

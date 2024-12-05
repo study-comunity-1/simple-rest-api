@@ -8,18 +8,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 @Service
 @RequiredArgsConstructor
 public class GetBookDetailService {
 
-  private final BookRepository bookRepository;
+  private final ReadBookService readBookService;
 
   public GetBookRespDto getBookDetail(Long bookId) {
-
-    Book book = bookRepository.findById(bookId)
-        .orElseThrow(() -> new EntityNotFoundException("책을 찾을 수 없습니다."));
+    Book book = readBookService.findBookById(bookId);
     return GetBookRespDto.of(book);
   }
-
 }

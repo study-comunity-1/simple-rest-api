@@ -24,7 +24,7 @@ public class CartFacade {
 
   public void addToCart(Long bookId, HttpSession session) {
     try {
-      Book book = readBookService.readBook(bookId);
+      Book book = readBookService.findBookById(bookId);
 
       Map<Long, Integer> cart = (Map<Long, Integer>) session.getAttribute("cart");
 
@@ -50,10 +50,11 @@ public class CartFacade {
         return getCartList;
       }
 
-      for (Map.Entry<Long, Integer> entry : cart.entrySet()) {
-        Long bookId = entry.getKey();
-        int quantity = entry.getValue();
-        Book book = readBookService.readBook(bookId);
+
+    for (Map.Entry<Long, Integer> entry : cart.entrySet()) {
+      Long bookId = entry.getKey();
+      int quantity = entry.getValue();
+      Book book = readBookService.findBookById(bookId);
 
         if (book != null) {
           totalQuantity += quantity;

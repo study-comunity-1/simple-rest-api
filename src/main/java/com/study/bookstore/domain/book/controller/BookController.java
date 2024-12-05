@@ -13,6 +13,7 @@ import com.study.bookstore.domain.book.service.SearchBookService;
 import com.study.bookstore.domain.book.service.UpdateBookService;
 import com.study.bookstore.domain.book.service.DeleteBookService;
 import com.study.bookstore.domain.book.service.GetBookDetailService;
+import com.study.bookstore.domain.book.service.UpdateStockService;
 import com.study.bookstore.domain.category.entity.Category;
 import com.study.bookstore.domain.category.entity.repository.CategoryRepository;
 import com.study.bookstore.domain.user.entity.UserType;
@@ -85,11 +86,16 @@ public class BookController {
     List<GetBookRespDto> bookList = bookFacade.getBookList(pageNumber, pageSize);
     return ResponseEntity.ok(bookList);
   }
+
   @Operation(summary = "책 상세 조회", description = "책의 상세 정보를 확인합니다.")
   @GetMapping("{bookId}")
-  public ResponseEntity<GetBookRespDto> getBookDetail(@PathVariable Long bookId) {
-    GetBookRespDto bookDetail = bookFacade.getBookListDetail(bookId);
-    return ResponseEntity.ok(bookDetail);
+  public ResponseEntity<?> getBookDetail(@PathVariable Long bookId) {
+    try {
+      GetBookRespDto bookDetail = bookFacade.getBookListDetail(bookId);
+      return ResponseEntity.ok(bookDetail);
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
   }
   @Operation(summary = "책 삭제", description = "책 삭제 관리자만 가능")
   @DeleteMapping("{bookId}")
@@ -102,9 +108,17 @@ public class BookController {
     UserType userType = user.getUserType();
     if (userType == null || userType.equals(UserType.USER)) { // UserType은 enum으로 가정
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제 권한이 없습니다.");
-    } else {
-      bookFacade.deleteBook(bookId);
+    }
+
+    try {
+      bookFacade.deleteBook(bookId); //책 삭제 처리
       return ResponseEntity.ok().body("책 삭제가 완료되었습니다.");
+    }catch (IllegalStateException e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("책 삭제 실패: " + e.getMessage());
+    }catch (Exception e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("책 삭제 중 오류가 발생했습니다." + e.getMessage());
     }
   }
 
@@ -129,7 +143,7 @@ public class BookController {
   }
   @Operation(summary = "책 재고 확인", description = "단순 재고 확인")
   @GetMapping("/inventory/{bookId}")
-  public ResponseEntity<Integer> getBookInventory(@PathVariable Long bookId, HttpSession session) {
+  public ResponseEntity<?> getBookInventory(@PathVariable Long bookId, HttpSession session) {
     User user = (User) session.getAttribute("user");
     if (user == null) {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(0);
@@ -138,10 +152,15 @@ public class BookController {
 
     if (userType == null || userType.equals(UserType.USER)) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body(0);
+    }try {
+      int stock = bookFacade.getBookInventory(bookId);
+      return ResponseEntity.ok(stock);
+    }catch (Exception e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(e.getMessage());
     }
-    int stock = bookFacade.getBookInventory(bookId);
-    return ResponseEntity.ok(stock);
   }
+
   @Operation(summary = "책 재고 추가")
   @PostMapping("/inventory/add/{bookId}")
   public ResponseEntity<String> addBookInventory(@PathVariable Long bookId, HttpSession session,
@@ -154,9 +173,13 @@ public class BookController {
 
     if (userType == null || userType.equals(UserType.USER)) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("확인 권한이 없습니다.");
+    }try{
+      int stock = bookFacade.addBookInventory(bookId, addBookAmount);
+      return ResponseEntity.ok("재고가 추가되었습니다.");
+    }catch (Exception e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(e.getMessage());
     }
-    int stock = bookFacade.addBookInventory(bookId, addBookAmount);
-    return ResponseEntity.ok("재고가 추가되었습니다.");
   }
 
   @Operation(summary = "책 재고 삭제")
@@ -172,8 +195,13 @@ public class BookController {
     if (userType == null || userType.equals(UserType.USER)) {
       return ResponseEntity.status(HttpStatus.FORBIDDEN).body("확인 권한이 없습니다.");
     }
-    int stock = bookFacade.removeBookInventory(bookId, removeBookAmount);
-    return ResponseEntity.ok("재고가 삭제 되었습니다.");
+    try{
+      int stock = bookFacade.removeBookInventory(bookId, removeBookAmount);
+      return ResponseEntity.ok("재고가 삭제 되었습니다.");
+    }catch (Exception e){
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body(e.getMessage());
+    }
   }
 
   @Operation(summary = "책 카테고리 검색 및 정렬 기능")
