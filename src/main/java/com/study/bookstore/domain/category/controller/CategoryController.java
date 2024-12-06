@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.http.parser.Authorization;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -107,18 +108,39 @@ public ResponseEntity<String> addCategory(@RequestBody CreateCategoryReqDto req,
   @Operation(summary = "카테고리 수정")
   @PutMapping("/{categoryId}")
   public ResponseEntity<String> updateCategory(@PathVariable Long categoryId,
-     @RequestParam String categoryName, HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
-    }
-    UserType userType = user.getUserType();
-    if (userType == null || userType == UserType.USER) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
-    } try {
+     @RequestParam String categoryName, HttpServletRequest request) {
+    try{
+      //1.Authorizaton 헤더에서 JWT토큰 추출
+      String token = request.getHeader("Authorization");
+      if(token == null || !token.startsWith("Bearer ")){
+        return ResponseEntity.badRequest().body("인증 실패 : Authorizaton 헤더가 없거나 형식이 올바르지 않습니다.");
+
+      }
+      //Bearer 이후의 토큰만 추출
+      String jwtToken = token.substring(7);
+
+      //2.토큰에서 이메일 추출
+      String email = jwtUtil.getUserId(jwtToken);
+      if(email == null){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인된 사용자가 아닙니다.");
+      }
+
+      //3.이메일로 사용자 정보 조회
+      Member member = orderFacade.getMemberByEmail(email);
+      if(member == null){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자 정보를 찾을 수 없습니다.");
+
+      }
+      //4.권한 확인
+      Role role = member.getRole();
+      if (role == null || role == Role.USER) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+      }
+      //5. 카테고리수정 로직 실행
       categoryFacade.updateCategory(categoryName, categoryId);
       return ResponseEntity.ok().body("카테고리 수정 완료");
-    }catch (Exception e){
+
+    } catch (Exception e){
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .header(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8")
           .body(e.getMessage());
@@ -126,56 +148,133 @@ public ResponseEntity<String> addCategory(@RequestBody CreateCategoryReqDto req,
   }
   @Operation(summary = "카테고리 삭제")
   @DeleteMapping("/{categoryId}")
-  public ResponseEntity<String> deleteCategory(@PathVariable Long categoryId, HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
-    }
-    UserType userType = user.getUserType();
-    if (userType == null || userType == UserType.USER) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
-    } try {
+  public ResponseEntity<String> deleteCategory(
+      @PathVariable Long categoryId,
+      HttpServletRequest request) {
+    try {
+      // 1. Authorization 헤더에서 JWT 토큰 추출
+      String token = request.getHeader("Authorization");
+      if (token == null || !token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 실패: Authorization 헤더가 없거나 형식이 올바르지 않습니다.");
+      }
+
+      String jwtToken = token.substring(7); // "Bearer " 이후의 토큰만 추출
+
+      // 2. 토큰에서 이메일 추출
+      String email = jwtUtil.getUserId(jwtToken);
+      if (email == null) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인된 사용자가 아닙니다.");
+      }
+
+      // 3. 이메일로 사용자 정보 조회
+      Member member = orderFacade.getMemberByEmail(email);
+      if (member == null) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자 정보를 찾을 수 없습니다.");
+      }
+
+      // 4. 권한 확인
+      Role role = member.getRole();
+      if (role == null || role == Role.USER) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+      }
+
+      // 5. 카테고리 삭제 로직 실행
       categoryFacade.deleteCategory(categoryId);
       return ResponseEntity.ok().body("카테고리 삭제 완료");
-    }catch (Exception e){
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+
+    } catch (IllegalArgumentException e) {
+      // 예외 처리
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .header(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8")
+          .body(e.getMessage());
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .header(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8")
+          .body("서버 오류: " + e.getMessage());
     }
   }
+
   @Operation(summary = "카테고리 상세 조회")
   @GetMapping("/{categoryId}")
-  public ResponseEntity<?> getCategoryDetail(@PathVariable Long categoryId, HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요.");
-    }
-    UserType userType = user.getUserType();
-    if (userType == null || userType == UserType.USER) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
-    }
+  public ResponseEntity<?> getCategoryDetail(
+      @PathVariable Long categoryId,
+      HttpServletRequest request) {
     try {
-      GetCategoryListRespDto catetoryDetail = categoryFacade.getCategoryDetail(categoryId);
-      return ResponseEntity.ok(catetoryDetail);
+      // 1. Authorization 헤더에서 JWT 토큰 추출
+      String token = request.getHeader("Authorization");
+      if (token == null || !token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 실패: Authorization 헤더가 없거나 형식이 올바르지 않습니다.");
+      }
+
+      String jwtToken = token.substring(7); // "Bearer " 이후의 토큰만 추출
+
+      // 2. 토큰에서 이메일 추출
+      String email = jwtUtil.getUserId(jwtToken);
+      if (email == null) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인된 사용자가 아닙니다.");
+      }
+
+      // 3. 이메일로 사용자 정보 조회
+      Member member = orderFacade.getMemberByEmail(email);
+      if (member == null) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자 정보를 찾을 수 없습니다.");
+      }
+
+      // 4. 권한 확인
+      Role role = member.getRole();
+      if (role == null || role == Role.USER) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+      }
+
+      // 5. 카테고리 상세 조회
+      GetCategoryListRespDto categoryDetail = categoryFacade.getCategoryDetail(categoryId);
+      return ResponseEntity.ok(categoryDetail);
+
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (Exception e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류: " + e.getMessage());
     }
   }
+
   @Operation(summary = "카테고리 전체 목록 조회")
   @GetMapping("/all")
-  public ResponseEntity<?> getAllCategories(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size, HttpSession session){
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요.");
-    }
-    UserType userType = user.getUserType();
-    if (userType == null || userType == UserType.USER){
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
-    }
+  public ResponseEntity<?> getAllCategories(
+      @RequestParam(defaultValue = "1") int page,
+      @RequestParam(defaultValue = "10") int size,
+      HttpServletRequest request) {
     try {
-      //전체 카테고리 목록 가져오기
+      // 1. Authorization 헤더에서 JWT 토큰 추출
+      String token = request.getHeader("Authorization");
+      if (token == null || !token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 실패: Authorization 헤더가 없거나 형식이 올바르지 않습니다.");
+      }
+
+      String jwtToken = token.substring(7); // "Bearer " 이후의 토큰만 추출
+
+      // 2. 토큰에서 이메일 추출
+      String email = jwtUtil.getUserId(jwtToken);
+      if (email == null) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인된 사용자가 아닙니다.");
+      }
+
+      // 3. 이메일로 사용자 정보 조회
+      Member member = orderFacade.getMemberByEmail(email);
+      if (member == null) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("사용자 정보를 찾을 수 없습니다.");
+      }
+
+      // 4. 권한 확인
+      Role role = member.getRole();
+      if (role == null || role == Role.USER) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+      }
+
+      // 5. 전체 카테고리 목록 조회
       GetAllCategoryListRespDto categoryList = categoryFacade.getCategories(page, size);
-      //성공
       return ResponseEntity.ok(categoryList);
-    } catch (Exception e){
+
+    } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
