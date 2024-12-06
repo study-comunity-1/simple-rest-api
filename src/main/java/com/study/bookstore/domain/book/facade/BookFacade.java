@@ -13,6 +13,8 @@ import com.study.bookstore.domain.book.service.SearchBookService;
 import com.study.bookstore.domain.book.service.UpdateBookService;
 import com.study.bookstore.domain.book.service.UpdateStockService;
 import com.study.bookstore.domain.category.entity.Category;
+import com.study.bookstore.domain.member.entity.Member;
+import com.study.bookstore.domain.member.service.read.ReadMemberService;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +37,7 @@ public class BookFacade {
   private final InventoryService inventoryService;
   private final SearchBookService searchBookService;
   private final ReadBookService readBookService;
-  private final BookRepository bookRepository;
+  private final ReadMemberService readMemberService;
 
   //책 추가
   public void createBook(Long categoryId, CreateBookReqDto req) {
@@ -76,6 +78,9 @@ public class BookFacade {
 
   //책 수정
   public void updateBook(UpdateBookReqDto req, Long bookId) {
+    //1.ISBN 중복검증
+    readBookService.validateIsbn(req.isbn());
+    System.out.println("isbn중복 검증");
     updateBookService.updateBook(req, bookId);
   }
 
@@ -100,5 +105,8 @@ public class BookFacade {
   //책 카테고리 검색 및 정렬 기능
   public Page<Book> searchBooks(Long categoryId, String search, Pageable pageable) {
     return searchBookService.getBooks(categoryId, search, pageable);
+  }
+  public Member getMemberByEmail(String email){
+    return readMemberService.findMemberByEmail(email);
   }
 }
