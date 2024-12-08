@@ -16,9 +16,13 @@ import com.study.bookstore.domain.book.service.GetBookDetailService;
 import com.study.bookstore.domain.book.service.UpdateStockService;
 import com.study.bookstore.domain.category.entity.Category;
 import com.study.bookstore.domain.category.entity.repository.CategoryRepository;
+import com.study.bookstore.domain.member.entity.Member;
+import com.study.bookstore.domain.member.enums.Role;
 import com.study.bookstore.domain.user.entity.UserType;
+import com.study.bookstore.global.jwt.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +32,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,13 +54,16 @@ import com.study.bookstore.domain.user.entity.User;
 public class BookController {
 
   private final BookFacade bookFacade;
+  private final JwtUtil jwtUtil;
 
   @Operation(summary = "책 추가", description = "책 추가 시 관리자만 가능")
   @PostMapping("/categories/{categoryId}")
+/*
   public ResponseEntity<String> addBook(@PathVariable Long categoryId,
-      @RequestBody CreateBookReqDto req, HttpSession session) {
+      @RequestBody CreateBookReqDto req, HttpSession session)
+ {
 
-    //유저 객체에 세션정보를 받아온다.
+   유저 객체에 세션정보를 받아온다.
     User user = (User) session.getAttribute("user");
     //유저가 널 값이거나 세션에 로그인 정보가 없는 경우
     if (user == null) {
@@ -78,6 +86,41 @@ public class BookController {
       }
     }
   }
+  */
+  public ResponseEntity<String> addBook(@PathVariable Long categoryId,
+      @RequestBody CreateBookReqDto req,
+      HttpServletRequest request) {
+    try {
+      String token = request.getHeader("Authorization");
+      if (token == null || !token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 실패: Authorizaion 헤더가 없거나 형식이 올바르지 않습니다.");
+      }
+      String jwtToken = token.substring(7);
+
+      String email = jwtUtil.getUserId(jwtToken);
+      if (email == null) {
+        return ResponseEntity.badRequest().body("로그인된 사용자가 아닙니다.");
+      }
+
+      Member member = bookFacade.getMemberByEmail(email);
+      if (member == null) {
+        return ResponseEntity.badRequest().body("사용자 정보를 찾을 수 없습니다.");
+      }
+
+      Role role = member.getRole();
+      if (role == null || role == role.USER) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+      }
+
+      bookFacade.createBook(categoryId, req);
+      return ResponseEntity.ok().body("책 추가 완료");
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .header(HttpHeaders.CONTENT_TYPE, "text/plain;charset=UTF-8")
+          .body(e.getMessage());
+    }
+  }
+
   @Operation(summary = "책 목록", description = "책 목록을 확인합니다.")
   @GetMapping
   public ResponseEntity<List<GetBookRespDto>> getBookList(
@@ -97,26 +140,44 @@ public class BookController {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
+
   @Operation(summary = "책 삭제", description = "책 삭제 관리자만 가능")
   @DeleteMapping("{bookId}")
-  public ResponseEntity<String> deleteBook(@PathVariable Long bookId, HttpSession session) {
-
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
-    }
-    UserType userType = user.getUserType();
-    if (userType == null || userType.equals(UserType.USER)) { // UserType은 enum으로 가정
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("삭제 권한이 없습니다.");
-    }
+  public ResponseEntity<String> deleteBook(@PathVariable Long bookId, HttpServletRequest request) {
 
     try {
+      // 1. Authorization 헤더에서 JWT 토큰 추출
+      String token = request.getHeader("Authorization");
+      if (token == null || !token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 실패: Authorization 헤더가 없거나 형식이 올바르지 않습니다.");
+      }
+
+      String jwtToken = token.substring(7); // "Bearer " 이후의 토큰만 추출
+
+      // 2. 토큰에서 이메일 추출
+      String email = jwtUtil.getUserId(jwtToken);
+      if (email == null) {
+        return ResponseEntity.badRequest().body("로그인된 사용자가 아닙니다.");
+      }
+
+      // 3. 이메일로 사용자 정보 조회
+      Member member = bookFacade.getMemberByEmail(email);
+      if (member == null) {
+        return ResponseEntity.badRequest().body("사용자 정보를 찾을 수 없습니다.");
+      }
+
+      // 4. 권한 확인
+      Role role = member.getRole();
+      if (role == null || role == role.USER) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+      }
+
       bookFacade.deleteBook(bookId); //책 삭제 처리
       return ResponseEntity.ok().body("책 삭제가 완료되었습니다.");
-    }catch (IllegalStateException e){
+    } catch (IllegalStateException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body("책 삭제 실패: " + e.getMessage());
-    }catch (Exception e){
+    } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body("책 삭제 중 오류가 발생했습니다." + e.getMessage());
     }
@@ -124,38 +185,75 @@ public class BookController {
 
   @Operation(summary = "책 수정", description = "책 수정 관리자만 가능")
   @PutMapping("{bookId}")
-  public ResponseEntity<String> updateBook(@PathVariable Long bookId, HttpSession session,
+  public ResponseEntity<String> updateBook(@PathVariable Long bookId, HttpServletRequest request,
       @RequestBody UpdateBookReqDto req) {
-    User user = (User) session.getAttribute("user");
-    //로그인 여부 확인
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요.");
-    }
-    //유저 권한 확인
-    UserType userType = user.getUserType();
+    try {
+      // 1. Authorization 헤더에서 JWT 토큰 추출
+      String token = request.getHeader("Authorization");
+      if (token == null || !token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 실패: Authorization 헤더가 없거나 형식이 올바르지 않습니다.");
+      }
 
-    if (userType == null || userType.equals(UserType.USER)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("수정 권한이 없습니다.");
-    } else {
+      String jwtToken = token.substring(7); // "Bearer " 이후의 토큰만 추출
+
+      // 2. 토큰에서 이메일 추출
+      String email = jwtUtil.getUserId(jwtToken);
+      if (email == null) {
+        return ResponseEntity.badRequest().body("로그인된 사용자가 아닙니다.");
+      }
+
+      // 3. 이메일로 사용자 정보 조회
+      Member member = bookFacade.getMemberByEmail(email);
+      if (member == null) {
+        return ResponseEntity.badRequest().body("사용자 정보를 찾을 수 없습니다.");
+      }
+
+      // 4. 권한 확인
+      Role role = member.getRole();
+      if (role == null || role == role.USER) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+      }
+
       bookFacade.updateBook(req, bookId);
       return ResponseEntity.ok().body("책 수정이 완료 되었습니다.");
+    } catch (IllegalStateException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
   }
+
   @Operation(summary = "책 재고 확인", description = "단순 재고 확인")
   @GetMapping("/inventory/{bookId}")
-  public ResponseEntity<?> getBookInventory(@PathVariable Long bookId, HttpSession session) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(0);
-    }
-    UserType userType = user.getUserType();
+  public ResponseEntity<?> getBookInventory(@PathVariable Long bookId, HttpServletRequest request) {
 
-    if (userType == null || userType.equals(UserType.USER)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body(0);
-    }try {
+    try {
+      // 1. Authorization 헤더에서 JWT 토큰 추출
+      String token = request.getHeader("Authorization");
+      if (token == null || !token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 실패: Authorization 헤더가 없거나 형식이 올바르지 않습니다.");
+      }
+
+      String jwtToken = token.substring(7); // "Bearer " 이후의 토큰만 추출
+
+      // 2. 토큰에서 이메일 추출
+      String email = jwtUtil.getUserId(jwtToken);
+      if (email == null) {
+        return ResponseEntity.badRequest().body("로그인된 사용자가 아닙니다.");
+      }
+
+      // 3. 이메일로 사용자 정보 조회
+      Member member = bookFacade.getMemberByEmail(email);
+      if (member == null) {
+        return ResponseEntity.badRequest().body("사용자 정보를 찾을 수 없습니다.");
+      }
+
+      // 4. 권한 확인
+      Role role = member.getRole();
+      if (role == null || role == role.USER) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+      }
       int stock = bookFacade.getBookInventory(bookId);
       return ResponseEntity.ok(stock);
-    }catch (Exception e){
+    } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(e.getMessage());
     }
@@ -163,20 +261,38 @@ public class BookController {
 
   @Operation(summary = "책 재고 추가")
   @PostMapping("/inventory/add/{bookId}")
-  public ResponseEntity<String> addBookInventory(@PathVariable Long bookId, HttpSession session,
+  public ResponseEntity<String> addBookInventory(@PathVariable Long bookId, HttpServletRequest request,
       @RequestParam int addBookAmount) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
-    }
-    UserType userType = user.getUserType();
 
-    if (userType == null || userType.equals(UserType.USER)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("확인 권한이 없습니다.");
-    }try{
+    try {
+      // 1. Authorization 헤더에서 JWT 토큰 추출
+      String token = request.getHeader("Authorization");
+      if (token == null || !token.startsWith("Bearer ")) {
+        return ResponseEntity.badRequest().body("인증 실패: Authorization 헤더가 없거나 형식이 올바르지 않습니다.");
+      }
+
+      String jwtToken = token.substring(7); // "Bearer " 이후의 토큰만 추출
+
+      // 2. 토큰에서 이메일 추출
+      String email = jwtUtil.getUserId(jwtToken);
+      if (email == null) {
+        return ResponseEntity.badRequest().body("로그인된 사용자가 아닙니다.");
+      }
+
+      // 3. 이메일로 사용자 정보 조회
+      Member member = bookFacade.getMemberByEmail(email);
+      if (member == null) {
+        return ResponseEntity.badRequest().body("사용자 정보를 찾을 수 없습니다.");
+      }
+
+      // 4. 권한 확인
+      Role role = member.getRole();
+      if (role == null || role == role.USER) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+      }
       int stock = bookFacade.addBookInventory(bookId, addBookAmount);
       return ResponseEntity.ok("재고가 추가되었습니다.");
-    }catch (Exception e){
+    } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(e.getMessage());
     }
@@ -184,21 +300,37 @@ public class BookController {
 
   @Operation(summary = "책 재고 삭제")
   @DeleteMapping("/inventory/remove/{bookId}")
-  public ResponseEntity<String> removeBookInventory(@PathVariable Long bookId, HttpSession session,
+  public ResponseEntity<String> removeBookInventory(@PathVariable Long bookId, HttpServletRequest request,
       @RequestParam int removeBookAmount) {
-    User user = (User) session.getAttribute("user");
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요");
+    // 1. Authorization 헤더에서 JWT 토큰 추출
+    String token = request.getHeader("Authorization");
+    if (token == null || !token.startsWith("Bearer ")) {
+      return ResponseEntity.badRequest().body("인증 실패: Authorization 헤더가 없거나 형식이 올바르지 않습니다.");
     }
-    UserType userType = user.getUserType();
 
-    if (userType == null || userType.equals(UserType.USER)) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("확인 권한이 없습니다.");
+    String jwtToken = token.substring(7); // "Bearer " 이후의 토큰만 추출
+
+    // 2. 토큰에서 이메일 추출
+    String email = jwtUtil.getUserId(jwtToken);
+    if (email == null) {
+      return ResponseEntity.badRequest().body("로그인된 사용자가 아닙니다.");
     }
-    try{
+
+    // 3. 이메일로 사용자 정보 조회
+    Member member = bookFacade.getMemberByEmail(email);
+    if (member == null) {
+      return ResponseEntity.badRequest().body("사용자 정보를 찾을 수 없습니다.");
+    }
+
+    // 4. 권한 확인
+    Role role = member.getRole();
+    if (role == null || role == role.USER) {
+      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
+    }
+    try {
       int stock = bookFacade.removeBookInventory(bookId, removeBookAmount);
       return ResponseEntity.ok("재고가 삭제 되었습니다.");
-    }catch (Exception e){
+    } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
           .body(e.getMessage());
     }
