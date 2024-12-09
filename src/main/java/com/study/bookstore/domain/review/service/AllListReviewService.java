@@ -27,7 +27,7 @@ public class AllListReviewService {
             review.getReviewId(),
             review.getContent(),
             review.getRating(),
-            review.getUser() != null ? review.getUser().getNick() : "Unknown",
+            review.getMember() != null ? review.getMember().getName() :  "Unknown",
             review.getCreatedDate(),
             review.getUpdatedDate()
         )

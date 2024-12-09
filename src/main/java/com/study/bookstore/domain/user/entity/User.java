@@ -60,10 +60,6 @@ public class User extends BaseTimeEntity {
   @OneToMany(mappedBy = "user")
   private List<Order> orders;
 
-  //유저가 가진 리뷰 목록
-  @OneToMany(mappedBy = "user")
-  private List<Review> reviews;
-
   @Builder.Default
   @Column(name = "is_delete", nullable = false)
   private boolean isDelete = false;

@@ -103,29 +103,5 @@ public class UserFacade {
     }
   }
 
-  public Page<UserReviewListRespDto> getUserReview(HttpSession session, Pageable pageable) {
-    //1.유저를 조회한다.
-    User user = (User) session.getAttribute("user");
 
-    if(user == null){
-      throw new IllegalArgumentException("로그인 해주세요.");
-    }
-
-    //2.유저가 작성한 리뷰 목록을 페이지네이션으로 조회한다.
-    Page<Review> reviewPage = readReviewService.readReviewPage(user, pageable);
-
-    //3.엔티티형식인 리뷰목록을 클라이언트에게 보여주기 위해 dto로 변환
-    Page<UserReviewListRespDto> reviewListRespDtos = reviewPage.map(review ->
-        new UserReviewListRespDto(
-            review.getReviewId(),
-            review.getRating(),  // rating은 이미 Double 타입이므로 캐스팅 필요 없음
-            review.getContent(),
-            review.getBook().getBookId(),
-            review.getBook().getAuthor(),
-            review.getCreatedDate()
-        )
-    );
-    //4.dto를 포함한 응답을 반환한다.
-    return reviewListRespDtos;
-  }
 }

@@ -1,6 +1,7 @@
 package com.study.bookstore.domain.review.dto.req;
 
 import com.study.bookstore.domain.book.entity.Book;
+import com.study.bookstore.domain.member.entity.Member;
 import com.study.bookstore.domain.review.entity.Review;
 import com.study.bookstore.domain.user.entity.User;
 
@@ -12,10 +13,10 @@ public record CreateReviewReqDto(
 
 ) {
   // Book과 User 엔티티를 받아서 Review로 변환하는 메서드
-  public Review toReview(Book book, User user) {
+  public Review toReview(Book book, Member member) {
     return Review.builder()
         .book(book)
-        .user(user)
+        .member(member)
         .rating(this.rating)
         .content(this.content)
         .build();

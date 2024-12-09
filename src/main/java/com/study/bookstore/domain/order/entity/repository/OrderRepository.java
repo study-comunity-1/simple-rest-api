@@ -1,6 +1,7 @@
 package com.study.bookstore.domain.order.entity.repository;
 
 import com.study.bookstore.domain.book.entity.Book;
+import com.study.bookstore.domain.member.entity.Member;
 import com.study.bookstore.domain.order.entity.Order;
 import com.study.bookstore.domain.order.entity.Status;
 import java.util.List;
@@ -24,5 +25,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
   Page<Order> findAllByUser_userId(Long userId, Pageable pageable);
 
   // 특정 사용자가 특정 책을 주문한 적이 있는지 확인
-  boolean existsByUserAndOrderItemsBook(User user, Book book);
+  boolean existsByMemberAndOrderItemsBook(Member member, Book book);
 }

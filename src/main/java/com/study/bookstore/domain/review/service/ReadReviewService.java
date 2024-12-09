@@ -2,6 +2,7 @@ package com.study.bookstore.domain.review.service;
 
 import com.study.bookstore.domain.book.entity.Book;
 import com.study.bookstore.domain.book.entity.repository.BookRepository;
+import com.study.bookstore.domain.member.entity.Member;
 import com.study.bookstore.domain.review.entity.Review;
 import com.study.bookstore.domain.review.entity.repository.ReviewRepository;
 import java.util.List;
@@ -19,11 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ReadReviewService {
+
   private final BookRepository bookRepository;
   private final ReviewRepository reviewRepository;
 
   //특정 책 조회 및 검증
-  public Book getBookWithReviews(Long bookId){
+  public Book getBookWithReviews(Long bookId) {
     Book book = bookRepository.findById(bookId)
         .orElseThrow(() -> new RuntimeException("책을 찾을 수 없습니다."));
 
@@ -35,15 +37,16 @@ public class ReadReviewService {
   }
 
   //특정 리뷰 조회 및 검증
-  public Review getReviewById(Long reviewId){
-    Review review =  reviewRepository.findById(reviewId)
+  public Review getReviewById(Long reviewId) {
+    Review review = reviewRepository.findById(reviewId)
         .orElseThrow(() -> new RuntimeException("리뷰를 찾을 수 없습니다."));
     //리뷰가 속한 책이 삭제되었는지 확인
-    if(review.getBook().isDeleted()){
+    if (review.getBook().isDeleted()) {
       throw new IllegalArgumentException("삭제된 책의 리뷰는 조회할 수 없습니다.");
     }
     return review;
   }
+
   //특정 책에 대한 리뷰 목록 조회
   public List<Review> findByBookId(Long bookId) {
 // 책이 삭제되었는지 먼저 확인
@@ -59,6 +62,7 @@ public class ReadReviewService {
     }
     return reviews;
   }
+
   // 전체 리뷰 조회
   public Page<Review> getAllReviews(Pageable pageable) {
     // ReviewRepository에서 모든 리뷰를 조회
@@ -66,7 +70,7 @@ public class ReadReviewService {
   }
 
 
-  public Page<Review> readReviewPage(User user, Pageable pageable) {
-    return reviewRepository.findByUser(user, pageable);
+  public Page<Review> readReviewPage(Member member, Pageable pageable) {
+    return reviewRepository.findByMember(member, pageable);
   }
 }

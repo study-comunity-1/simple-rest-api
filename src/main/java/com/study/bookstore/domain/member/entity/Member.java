@@ -3,6 +3,7 @@ package com.study.bookstore.domain.member.entity;
 import com.study.bookstore.domain.member.enums.AuthType;
 import com.study.bookstore.domain.member.enums.Gender;
 import com.study.bookstore.domain.member.enums.Role;
+import com.study.bookstore.domain.review.entity.Review;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,6 +11,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,5 +47,9 @@ public class Member {
   @Enumerated(value = EnumType.STRING)
   @Column(nullable = false)
   private Role role;
+
+  //유저가 가진 리뷰 목록
+  @OneToMany(mappedBy = "member")
+  private List<Review> reviews;
 
 }
