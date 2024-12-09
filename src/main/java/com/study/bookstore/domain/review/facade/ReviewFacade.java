@@ -1,6 +1,8 @@
 package com.study.bookstore.domain.review.facade;
 
 import com.study.bookstore.domain.book.entity.Book;
+import com.study.bookstore.domain.member.entity.Member;
+import com.study.bookstore.domain.member.service.read.ReadMemberService;
 import com.study.bookstore.domain.order.entity.repository.OrderRepository;
 import com.study.bookstore.domain.review.dto.req.CreateReviewReqDto;
 import com.study.bookstore.domain.review.dto.req.UpdateReviewReqDto;
@@ -36,14 +38,14 @@ public class ReviewFacade {
   private final DeleteReviewService deleteReviewService;
   private final UpdateReviewService updateReviewService;
   private final ListReviewService listReviewService;
-  private final AllListReviewService allListReviewService;
   private final ReadReviewService readReviewService;
   private final ReviewRepository reviewRepository;
   private final OrderRepository orderRepository;
   private final CreateReviewService createReviewService;
+  private final ReadMemberService readMemberService;
 
   //리뷰 추가
-  public void createReview(CreateReviewReqDto req, User user) {
+  public void createReview(CreateReviewReqDto req, Member member) {
     //1.ReadReviewService에서 책 조회
     Book book = readReviewService.getBookWithReviews(req.bookId());//책 조회
 
@@ -55,34 +57,34 @@ public class ReviewFacade {
       throw new IllegalArgumentException("평점은 0.0DPTJ 5.0사이의 값이어야하며,0.5단위여야 합니다. ");
     }
     //3. 사용자가 이미 해당 책에 리뷰를 작성했는지 확인
-    boolean reviewedBook = reviewRepository.existsByUserAndBook(user, book);
+    boolean reviewedBook = reviewRepository.existsByMemberAndBook(member, book);
     if (reviewedBook) {
       throw new RuntimeException("중복된 리뷰입니다.");
     }
     //4.사용자가 해당 책을 구매했는지 확인
-    boolean purchasedBook = orderRepository.existsByUserAndOrderItemsBook(user, book);
+    boolean purchasedBook = orderRepository.existsByMemberAndOrderItemsBook(member, book);
     if (!purchasedBook) {
       throw new RuntimeException("책을 구매한 사용자만 리뷰 작성이 가능합니다.");
     }
 
     //5.CreateReviewReqDto에서 Review객체로 변환
-    Review review = req.toReview(book, user);
+    Review review = req.toReview(book, member);
     createReviewService.createReview(review);  // req와 user 전달
   }
 
   //리뷰 삭제
-  public void deleteReview(Long reviewId, User user) {
-    deleteReviewService.deleteReview(reviewId, user);
+  public void deleteReview(Long reviewId, Member member) {
+    deleteReviewService.deleteReview(reviewId, member);
   }
 
   //리뷰 수정
-  public void updateReview(Long reviewId, UpdateReviewReqDto req, User user) {
+  public void updateReview(Long reviewId, UpdateReviewReqDto req, Member member) {
 
     //리뷰 조회(책 상태도 확인됨)
     Review review = readReviewService.getReviewById(reviewId);
 
     //리뷰 작성자와 현재 로그인한 사용자가 같은 지 확인
-    if (!review.getUser().getUserId().equals(user.getUserId())) {
+    if (!review.getMember().getId().equals(member.getId())) {
       throw new IllegalArgumentException("리뷰 작성자만 수정이 가능합니다.");
     }
     //수정 하려는 평점 검증
@@ -121,7 +123,7 @@ public class ReviewFacade {
               review.getReviewId(),
               review.getContent(),
               review.getRating(),
-              review.getUser() != null ? review.getUser().getNick() : "Unknown",
+              review.getMember() != null ? review.getMember().getName() : "Unknown",
               review.getCreatedDate(),
               review.getUpdatedDate()
           );
@@ -131,5 +133,8 @@ public class ReviewFacade {
 
     // List를 Page로 변환해서 반환
     return new PageImpl<>(reviewList, pageable, reviews.getTotalElements());
+  }
+  public Member getMemberByEmail(String email){
+    return readMemberService.findMemberByEmail(email);
   }
 }

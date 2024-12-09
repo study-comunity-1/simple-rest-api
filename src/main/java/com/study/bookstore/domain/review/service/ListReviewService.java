@@ -26,7 +26,7 @@ public class ListReviewService {
             review.getReviewId(),
             review.getContent(),
             review.getRating(),
-            review.getUser().getNick(),
+            review.getMember().getName(),
             review.getCreatedDate(),
             review.getUpdatedDate()
         ))

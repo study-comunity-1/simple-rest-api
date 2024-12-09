@@ -2,6 +2,7 @@ package com.study.bookstore.domain.review.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.study.bookstore.domain.book.entity.Book;
+import com.study.bookstore.domain.member.entity.Member;
 import com.study.bookstore.domain.user.entity.User;
 import com.study.bookstore.global.entity.BaseTimeEntity;
 import jakarta.persistence.CascadeType;
@@ -41,10 +42,10 @@ public class Review extends BaseTimeEntity {
   @JoinColumn(name = "book_id", nullable = false)
   private Book book;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  /*@ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
   private User user;
-
+*/
   @Column(nullable = false)
   private double rating;
 
@@ -54,6 +55,10 @@ public class Review extends BaseTimeEntity {
   @Builder.Default
   @Column(name = "is_deleted", nullable = false)
   private boolean isDeleted = false; // 기본값 false설정
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "member_id")
+  private Member member; // User 대신 Member 사용
 
   //리뷰를 논리적으로 삭제하는 메서드
   public void markAsDeleted(){

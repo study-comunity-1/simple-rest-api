@@ -58,35 +58,6 @@ public class BookController {
 
   @Operation(summary = "책 추가", description = "책 추가 시 관리자만 가능")
   @PostMapping("/categories/{categoryId}")
-/*
-  public ResponseEntity<String> addBook(@PathVariable Long categoryId,
-      @RequestBody CreateBookReqDto req, HttpSession session)
- {
-
-   유저 객체에 세션정보를 받아온다.
-    User user = (User) session.getAttribute("user");
-    //유저가 널 값이거나 세션에 로그인 정보가 없는 경우
-    if (user == null) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 해주세요.");
-    }
-    //1. 유저의 타입을 확인
-    UserType userType = user.getUserType();
-    //유저가 고객인 경우에는 권한이 없습니다.
-    if (userType == null || userType == UserType.USER) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).body("권한이 없습니다.");
-    }
-    //관리자인 경우에는 책 추가 가능
-    else {
-      try {
-        bookFacade.createBook(categoryId, req);
-        return ResponseEntity.ok().body("책 추가가 완료되었습니다.");
-      } catch (Exception e) {
-        // 예외 처리
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-      }
-    }
-  }
-  */
   public ResponseEntity<String> addBook(@PathVariable Long categoryId,
       @RequestBody CreateBookReqDto req,
       HttpServletRequest request) {
